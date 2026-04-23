@@ -1,0 +1,60 @@
+# Godot 4
+.godot/
+.import/
+export.cfg
+export_presets.cfg
+*.translation
+
+# Godot generated imports and native builds
+*.import
+*.ctex
+*.stex
+*.scn
+*.mesh
+*.res
+*.godot.backup
+*.tmp
+
+# Godot mono / C#
+.mono/
+data_*/
+mono_crash.*.json
+
+# Exported builds
+builds/
+exports/
+dist/
+*.pck
+*.apk
+*.aab
+*.ipa
+*.dmg
+*.exe
+*.app
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temporary files
+*.log
+tmp/
+temp/
+.cache/
+
+# AI agent local scratch files
+.codex/
+.claude/
+.openclaw/
+.agent-cache/
+.agent-tmp/
+agent-output/
