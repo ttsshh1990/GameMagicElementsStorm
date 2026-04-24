@@ -36,7 +36,6 @@ dist/
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
 
 # Editors and IDEs
 .vscode/

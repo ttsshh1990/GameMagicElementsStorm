@@ -1,0 +1,4 @@
+interface:
+  display_name: "Elemental Art Assets"
+  short_description: "Generate consistent elemental game art assets"
+  default_prompt: "Use this skill when creating or integrating visual assets for Game1's ice, fire, and lightning elemental roguelike."
