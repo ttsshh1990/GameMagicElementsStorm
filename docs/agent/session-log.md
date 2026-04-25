@@ -332,3 +332,84 @@
 - 任务摘要：回应用户反馈角色和怪物在游戏里像黑块、背景过白刺眼。
 - 状态变化：确认资源有 alpha 且尺寸正常；黑块感主要来自深色主体在运行时尺寸下细节被缩小采样压缩，以及浅白背景提高了暗部压迫感。背景已从接近白色调整为中浅灰，网格同步压暗。
 - 后续交接：如果角色 / 怪物仍然黑，应让 art agent 在资源层增加更明显的亮边、局部高光和中间调分离；工程侧不应无限放大碰撞无关视觉尺寸来解决所有可读性问题。
+
+## 2026-04-25 - 加入获得元素奖励和火火火陨石合成
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`docs/design/current-design.md`、`docs/engineering/godot-prototype-architecture.md`、`docs/engineering/implementation-status.md`、`godotGame/scripts/autoload/content_registry.gd`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/scripts/rewards/reward_system.gd`、`godotGame/scripts/skills/skill_controller.gd`。
+- 任务摘要：根据用户要求，把获得元素加入升级奖励池，并实现最小合成链路：火火火合成陨石技能。
+- 状态变化：新增火 / 冰 / 雷元素获得奖励；新增 `SynthesisRecipeDef`、`SynthesisService`、`recipe_meteor_fire.tres` 和 `skill_meteor_fire.tres`；合成解锁等级进入 `BalanceConfig.synthesis_unlock_level=3`；3 级后 3 个火元素自动消耗并加入陨石技能；HUD 会显示已合成技能；新增 `synthesis_smoke_test.gd` 验证奖励池、3 级门槛、火元素消耗和技能列表刷新。
+- 后续交接：当前只有火火火 -> 陨石一条合成路线，且是自动触发；完整合成 UI、奖励权重、符文、紫 / 橙品质和其他高级技能仍未实现。陨石 VFX 仍使用范围技能占位，art agent 可按 `godotGame/assets/art/vfx/areas/meteor_fire_frames/README.md` 交付透明 PNG 帧序列。
+
+## 2026-04-25 - 修正 HUD 和激活技能槽模型
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对 UI / 元素槽关系的反馈、`docs/design/current-design.md`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/scripts/ui/ui_root.gd`、`godotGame/scripts/skills/skill_controller.gd`、`godotGame/tests/synthesis_smoke_test.gd`、`godotGame/tests/display_layout_smoke_test.gd`。
+- 任务摘要：把 UI 和技能释放模型改成最多 3 个当前激活元素 / 技能槽，并单独显示冰 / 火 / 雷等级和激活数量。
+- 状态变化：新增 `RunState.active_skill_ids` 作为当前激活技能唯一来源；`SkillController` 只释放激活技能；HUD 第一行显示激活技能图标，第二行显示火 / 冰 / 雷等级和按激活技能组成拆算的数量；火火火合成后陨石替换小火球；设计文档和设计记忆已记录该规则。
+- 后续交接：后续实现其他高级元素时，应让高级元素技能占用 1 个 `active_skill_ids` 槽，同时通过 `SkillDef.element_ids` 表示其基础元素组成；不要再把库存元素列表直接当成 HUD 激活槽或技能释放列表。
+
+## 2026-04-25 - 加入最小元素 / 合成面板
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对自动合成和未激活元素数量的反馈、`docs/design/current-design.md`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/scripts/synthesis/synthesis_service.gd`、`godotGame/scripts/ui/ui_root.gd`、`godotGame/tests/synthesis_smoke_test.gd`、`godotGame/tests/display_layout_smoke_test.gd`。
+- 任务摘要：取消获得 3 火后的自动合成，加入元素 / 合成面板，让玩家看到所有拥有元素、激活标记，并能手动合成和更换激活槽。
+- 状态变化：获得元素奖励现在只增加库存；HUD 显示火 / 冰 / 雷等级、拥有数量和激活数量；新增 `SynthesisPanel`，打开时暂停战斗，可查看库存、选择激活槽、替换激活技能、选择 3 个基础元素并手动合成；`synthesis_smoke_test.gd` 已覆盖 3 火不自动合成和手动火火火 -> 陨石。
+- 后续交接：当前面板是最小可用版本，未做正式 UI 美术、复杂配方预览、奖励权重或完整高级元素列表。后续扩展配方时，应继续通过 `SynthesisRecipeDef` 和 `SkillDef.element_ids` 维护 single source of truth。
+
+## 2026-04-25 - 生成并接入三基础技能特效帧序列
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent / engineering-agent。
+- 已读取上下文：`docs/engineering/implementation-status.md`、`godotGame/resources/skills/skill_fireball.tres`、`skill_ice_nova.tres`、`skill_lightning_chain.tres`、`godotGame/scripts/combat/projectile.gd`、`area_effect.gd`、`lightning_effect.gd`、`godotGame/tests/visual_asset_smoke_test.gd`。
+- 任务摘要：根据用户要求为冰 / 火 / 雷基础攻击生成所有需要的弹道 / 命中特效资源，每套 6 帧；不修改现有 `vfx_fps` 播放速度。
+- 状态变化：新增火球 6 帧 `64x64` 透明 PNG 到 `godotGame/assets/art/vfx/projectiles/fireball_frames/`；新增寒冰新星 6 帧 `192x192` 透明 PNG 到 `godotGame/assets/art/vfx/areas/ice_nova_frames/`；新增小闪电连锁段 6 帧 `256x96` 透明 PNG 到 `godotGame/assets/art/vfx/beams/lightning_chain_frames/`；源 chroma-key 图和预览保存到 `godotGame/assets/art/source/vfx/`。`visual_asset_smoke_test.gd` 已验证三套 VFX 帧序列数量、尺寸和配置路径。
+- 后续交接：当前三基础技能 VFX 已可由现有 `SkillDef.vfx_frames_dir` 直接加载；后续只需实测视觉比例和明暗，如游戏内过亮或过暗再调整资源本身，不需要改资源路径。
+
+## 2026-04-25 - 更新 art-agent 的 imagegen 子代理隔离流程
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：`README.md`、`AGENTS.md`、`docs/agent/current-state.md`、`agents/art-agent.md`、`docs/agent/task-board.md`、`skills/elemental-art-assets/SKILL.md`。
+- 任务摘要：根据用户要求，调整后续 `imagegen` 使用方式，避免主线程因图片生成上下文过大而中断任务。
+- 状态变化：`agents/art-agent.md` 新增 `Imagegen 子代理隔离流程`，要求主线程 art agent 只负责资源规格、prompt 设计、输出要求和后续整理接入，实际 `imagegen` 生成交由独立 sub-agent 完成并返回生成资源路径；`skills/elemental-art-assets/SKILL.md` 同步该约束，避免 art skill 与 art-agent 流程不一致；`docs/agent/task-board.md` 新增完成项 `G1-0030`。
+- 后续交接：后续生成生产资源或候选 bitmap 资源时，art agent 应先整理 prompt 与 asset spec，再启动一个专门的 imagegen sub-agent；如果环境不能创建 sub-agent，应先说明原因并等待用户确认是否改由主线程继续。
+
+## 2026-04-25 - 生成并接入火火火陨石技能图标和 VFX 素材
+
+- 入口来源：Codex App 当前 thread + imagegen sub-agent。
+- 主责 agent：art-agent / engineering-agent。
+- 已读取上下文：`agents/art-agent.md`、`skills/elemental-art-assets/SKILL.md`、`skills/elemental-art-assets/references/prompt-pack.md`、`skills/elemental-art-assets/references/asset-workflow.md`、`docs/engineering/implementation-status.md`、`godotGame/resources/skills/skill_meteor_fire.tres`、`godotGame/scripts/combat/area_effect.gd`、`godotGame/tests/visual_asset_smoke_test.gd`。
+- 任务摘要：根据用户要求生成火火火合成高级元素图标、陨石从天上落下素材和落点爆炸素材；能接入当前程序的先接入，剩余素材留给后续 agent 改代码后接入。
+- 状态变化：使用专门 imagegen sub-agent 生成 3 张 chroma-key 源图并返回路径；主线程复制源图到 `godotGame/assets/art/source/vfx/`，完成去背、裁切、缩放和预览。新增 `godotGame/assets/art/icons/skills/icon_skill_meteor_fire_512.png` 并将 `skill_meteor_fire.tres.icon_path` 指向该图标；新增陨石落点爆炸 `256x256 x8` 帧序列到 `godotGame/assets/art/vfx/areas/meteor_fire_frames/`，由现有范围 VFX 接口直接播放；新增陨石下落段 `192x192 x6` 帧序列到 `godotGame/assets/art/vfx/projectiles/meteor_fire_fall_frames/`，当前只暂存未被运行时代码引用；`visual_asset_smoke_test.gd` 已补充路径、尺寸和帧数验证。
+- 后续交接：后续 engineering-agent 若要实现“先从天上落下，再落点爆炸”，应引用 `meteor_fire_fall_frames/` 作为下落段动画，再在命中位置播放现有 `meteor_fire_frames/`；当前 `meteor_fire` 仍是 `presentation_type="area"`，所以只会显示落点爆炸，不会自动播放下落段。
+
+## 2026-04-25 - 接入火火火陨石斜向下落段
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对陨石弹道方向的反馈、`godotGame/assets/art/vfx/projectiles/meteor_fire_fall_frames/frame_000.png`、`godotGame/resources/skills/skill_meteor_fire.tres`、`godotGame/scripts/skills/skill_controller.gd`、`godotGame/scripts/combat/area_effect.gd`、`godotGame/scripts/visuals/visual_asset.gd`。
+- 任务摘要：根据现有陨石弹道帧的方向，把陨石技能改成先沿斜线落下，再播放落点爆炸。
+- 状态变化：新增 `SkillDef` 前置 VFX 字段；`skill_meteor_fire.tres` 配置 `cast_intro_frames_dir = res://assets/art/vfx/projectiles/meteor_fire_fall_frames` 和 `cast_intro_start_offset = Vector2(-260, -320)`；新增 `meteor_strike_effect.gd`，让陨石从目标左上方斜向落到目标点，落地时播放爆炸并结算范围伤害；`SkillController` 只在技能配置前置 VFX 时走该两段式效果，普通范围技能不受影响；新增并通过 `meteor_strike_smoke_test.gd`。
+- 后续交接：后续若实测感觉陨石速度、大小或起点不合适，优先调 `skill_meteor_fire.tres` 中的 `cast_intro_duration`、`cast_intro_world_size` 和 `cast_intro_start_offset`，不要在脚本里 hardcode 新数值。
+
+## 2026-04-25 - 测试模式开局给三基础元素各 3 个
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/scripts/autoload/debug_settings.gd`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/project.godot`、`godotGame/tests/synthesis_smoke_test.gd`。
+- 任务摘要：根据用户要求，让测试模式开局就拥有每个基础元素 3 个，方便直接测试合成技能。
+- 状态变化：新增 debug-only 设置 `debug/game/start_with_three_each_basic_element=true`；`DebugSettings` 只在 Godot debug build 中读取该设置；`RunState.reset_run()` 在该设置开启时把初始库存设为火 / 冰 / 雷各 3 个，激活槽仍保持基础三技能；`synthesis_smoke_test.gd` 已更新并通过。
+- 后续交接：这是测试辅助，不是正式开局规则。正式开局如果需要改为不同库存，应新增设计共识后再修改非 debug 默认值。
+
+## 2026-04-26 - 调整 HUD 和背包式合成面板
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对 UI 面板的反馈、`docs/design/current-design.md`、`godotGame/scripts/ui/ui_root.gd`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/scripts/autoload/debug_settings.gd`、`godotGame/scripts/synthesis/synthesis_service.gd`、`godotGame/tests/display_layout_smoke_test.gd`、`godotGame/tests/synthesis_smoke_test.gd`。
+- 任务摘要：让 HUD 去掉拥有数量，把合成面板改成类似背包的格子界面，并区分正式版 3 级解锁和测试版开局解锁。
+- 状态变化：HUD 元素统计只显示基础元素等级和激活数量；合成面板显示背包格子，前三格高亮当前激活元素；新增 3 个合成框，玩家选中合成框后点击元素放入材料；正式逻辑下合成按钮 3 级前黑色不可点击，debug build 通过 `debug/game/unlock_synthesis_from_start=true` 开局解锁；`display_layout_smoke_test.gd` 和 `synthesis_smoke_test.gd` 已更新并通过。
+- 后续交接：当前背包式面板仍是工程 UI，占位视觉未做正式美术；后续如果需要更强的可读性，应优先补 UI theme / 图标格子样式，而不是把库存数量重新塞回 HUD。

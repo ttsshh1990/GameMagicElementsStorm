@@ -17,6 +17,8 @@ DebugSettings="*res://scripts/autoload/debug_settings.gd"
 [debug]
 
 game/lock_player_health_to_one=true
+game/start_with_three_each_basic_element=true
+game/unlock_synthesis_from_start=true
 
 [display]
 

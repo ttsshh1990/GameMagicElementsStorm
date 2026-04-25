@@ -10,6 +10,7 @@ const SKILL_PATHS := [
 	"res://resources/skills/skill_fireball.tres",
 	"res://resources/skills/skill_ice_nova.tres",
 	"res://resources/skills/skill_lightning_chain.tres",
+	"res://resources/skills/skill_meteor_fire.tres",
 ]
 const ENEMY_PATHS := [
 	"res://resources/enemies/enemy_chaser.tres",
@@ -20,6 +21,12 @@ const REWARD_PATHS := [
 	"res://resources/rewards/reward_upgrade_fire.tres",
 	"res://resources/rewards/reward_upgrade_ice.tres",
 	"res://resources/rewards/reward_upgrade_lightning.tres",
+	"res://resources/rewards/reward_gain_fire.tres",
+	"res://resources/rewards/reward_gain_ice.tres",
+	"res://resources/rewards/reward_gain_lightning.tres",
+]
+const SYNTHESIS_RECIPE_PATHS := [
+	"res://resources/synthesis/recipe_meteor_fire.tres",
 ]
 
 var _balance_config
@@ -27,6 +34,7 @@ var _elements: Dictionary = {}
 var _skills: Dictionary = {}
 var _enemies: Dictionary = {}
 var _rewards: Dictionary = {}
+var _synthesis_recipes: Dictionary = {}
 
 func _ready() -> void:
 	load_definitions()
@@ -37,6 +45,7 @@ func load_definitions() -> void:
 	_skills = _load_by_id(SKILL_PATHS)
 	_enemies = _load_by_id(ENEMY_PATHS)
 	_rewards = _load_by_id(REWARD_PATHS)
+	_synthesis_recipes = _load_by_id(SYNTHESIS_RECIPE_PATHS)
 
 func get_balance_config():
 	return _balance_config
@@ -59,12 +68,10 @@ func get_all_reward_defs() -> Array:
 		result.append(reward)
 	return result
 
-func get_default_skill_ids_for_slots(element_slots: Array[StringName]) -> Array[StringName]:
-	var result: Array[StringName] = []
-	for element_id: StringName in element_slots:
-		var element = get_element_def(element_id)
-		if element != null:
-			result.append(element.default_skill_id)
+func get_all_synthesis_recipe_defs() -> Array:
+	var result: Array = []
+	for recipe in _synthesis_recipes.values():
+		result.append(recipe)
 	return result
 
 func _load_by_id(paths: Array) -> Dictionary:

@@ -1,3 +1,5 @@
 # Ice Nova Frames
 
-Place transparent PNG frames here as `frame_000.png`, `frame_001.png`, etc. Frames are loaded alphabetically and played once at 12 FPS.
+Current runtime asset: 6 transparent PNG frames, `frame_000.png` through `frame_005.png`, each `192x192`.
+
+Frames are loaded alphabetically and played once at 12 FPS.

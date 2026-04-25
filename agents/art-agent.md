@@ -60,6 +60,28 @@ Art Agent 负责 Game1 的美术资源探索、生成、整理、命名、导入
 6. 如果资源需要工程接入，给 engineering agent 留清晰任务。
 7. 如果视觉探索改变设计方向，更新 `docs/design/memory.md`，并提示 design agent 更新 `current-design.md`。
 
+## Imagegen 子代理隔离流程
+
+为避免 `imagegen` 生成过程占用主线程过多上下文，后续凡是需要调用 `imagegen` 生成生产资源或候选 bitmap 资源时，art agent 必须使用一个独立 sub-agent 执行实际生成。
+
+主线程 art agent 只负责：
+
+- 读取项目上下文、设计文档和 art skill。
+- 明确资源规格：用途、数量、尺寸、帧数、透明 / chroma-key 要求、目标目录、命名规则和验收标准。
+- 设计完整 prompt，包括风格引用、禁止项、构图、帧序列要求和后处理要求。
+- 把 prompt、资源规格和输出要求交给 sub-agent。
+- 接收 sub-agent 返回的生成资源路径和简短结果说明。
+- 在主线程继续完成资源整理、去背、裁切、缩放、manifest / README / 文档记录和 Godot 接入交接。
+
+sub-agent 只负责：
+
+- 使用 `imagegen` / `image_gen` 生成指定资源。
+- 不修改游戏设计、工程代码或项目文档。
+- 不自行扩展资源范围。
+- 生成完成后返回生成文件的绝对路径、每张图的用途、以及任何明显失败或偏差。
+
+如果当前运行环境不能创建 sub-agent，art agent 必须在回复中说明原因；除非用户明确要求继续，否则不要在主线程直接执行大批量 `imagegen` 生成。
+
 ## 命名原则
 
 未来进入资源阶段后，资源命名使用英文、短名、可搜索。

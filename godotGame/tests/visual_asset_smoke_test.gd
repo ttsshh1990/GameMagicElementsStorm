@@ -3,6 +3,7 @@ extends SceneTree
 const VisualAssetScript := preload("res://scripts/visuals/visual_asset.gd")
 
 const EXISTING_ICON_PATH := "res://assets/art/icons/elements/icon_element_fire_512.png"
+const EXPECTED_METEOR_ICON_PATH := "res://assets/art/icons/skills/icon_skill_meteor_fire_512.png"
 const PLAYER_PATH := "res://assets/art/sprites/player/player_idle.png"
 const PLAYER_FRAMES := "res://assets/art/sprites/player/player_idle_frames"
 const MISSING_TEXTURE_PATH := "res://assets/art/__missing__/missing.png"
@@ -15,6 +16,10 @@ const EXPECTED_TANK_PATH := "res://assets/art/sprites/enemies/enemy_tank.png"
 const EXPECTED_TANK_FRAMES := "res://assets/art/sprites/enemies/enemy_tank_frames"
 const EXPECTED_FIREBALL_PATH := "res://assets/art/vfx/projectiles/fireball.png"
 const EXPECTED_FIREBALL_FRAMES := "res://assets/art/vfx/projectiles/fireball_frames"
+const EXPECTED_ICE_NOVA_FRAMES := "res://assets/art/vfx/areas/ice_nova_frames"
+const EXPECTED_LIGHTNING_CHAIN_FRAMES := "res://assets/art/vfx/beams/lightning_chain_frames"
+const EXPECTED_METEOR_FIRE_FRAMES := "res://assets/art/vfx/areas/meteor_fire_frames"
+const EXPECTED_METEOR_FIRE_FALL_FRAMES := "res://assets/art/vfx/projectiles/meteor_fire_fall_frames"
 const PLAYER_VISUAL_WORLD_SIZE := 108.0
 
 func _init() -> void:
@@ -45,6 +50,10 @@ func _check_loader() -> bool:
 	if texture == null or texture.get_width() != 512 or texture.get_height() != 512:
 		push_error("Visual asset smoke failed: existing texture did not load at expected size.")
 		return false
+	var meteor_icon := VisualAssetScript.load_texture(EXPECTED_METEOR_ICON_PATH)
+	if meteor_icon == null or meteor_icon.get_width() != 512 or meteor_icon.get_height() != 512:
+		push_error("Visual asset smoke failed: meteor icon did not load at expected size.")
+		return false
 	if not _check_frame_sequence(PLAYER_FRAMES, 4, Vector2i(128, 128)):
 		return false
 	if not _check_frame_sequence(EXPECTED_CHASER_FRAMES, 4, Vector2i(96, 96)):
@@ -52,6 +61,16 @@ func _check_loader() -> bool:
 	if not _check_frame_sequence(EXPECTED_FAST_FRAMES, 4, Vector2i(80, 80)):
 		return false
 	if not _check_frame_sequence(EXPECTED_TANK_FRAMES, 4, Vector2i(128, 128)):
+		return false
+	if not _check_frame_sequence(EXPECTED_FIREBALL_FRAMES, 6, Vector2i(64, 64)):
+		return false
+	if not _check_frame_sequence(EXPECTED_ICE_NOVA_FRAMES, 6, Vector2i(192, 192)):
+		return false
+	if not _check_frame_sequence(EXPECTED_LIGHTNING_CHAIN_FRAMES, 6, Vector2i(256, 96)):
+		return false
+	if not _check_frame_sequence(EXPECTED_METEOR_FIRE_FRAMES, 8, Vector2i(256, 256)):
+		return false
+	if not _check_frame_sequence(EXPECTED_METEOR_FIRE_FALL_FRAMES, 6, Vector2i(192, 192)):
 		return false
 	if VisualAssetScript.load_texture(MISSING_TEXTURE_PATH) != null:
 		push_error("Visual asset smoke failed: dummy missing texture unexpectedly loaded.")
@@ -115,6 +134,27 @@ func _check_configured_paths(_main: Node) -> bool:
 		return false
 	if fireball_def.vfx_path != EXPECTED_FIREBALL_PATH:
 		push_error("Visual asset smoke failed: fireball vfx_path is %s." % fireball_def.vfx_path)
+		return false
+	var ice_nova_def = content_registry.get_skill_def(&"ice_nova")
+	var lightning_def = content_registry.get_skill_def(&"lightning_chain")
+	var meteor_def = content_registry.get_skill_def(&"meteor_fire")
+	if ice_nova_def.vfx_frames_dir != EXPECTED_ICE_NOVA_FRAMES:
+		push_error("Visual asset smoke failed: ice nova vfx_frames_dir is %s." % ice_nova_def.vfx_frames_dir)
+		return false
+	if lightning_def.vfx_frames_dir != EXPECTED_LIGHTNING_CHAIN_FRAMES:
+		push_error("Visual asset smoke failed: lightning chain vfx_frames_dir is %s." % lightning_def.vfx_frames_dir)
+		return false
+	if meteor_def.icon_path != EXPECTED_METEOR_ICON_PATH:
+		push_error("Visual asset smoke failed: meteor icon_path is %s." % meteor_def.icon_path)
+		return false
+	if meteor_def.vfx_frames_dir != EXPECTED_METEOR_FIRE_FRAMES:
+		push_error("Visual asset smoke failed: meteor vfx_frames_dir is %s." % meteor_def.vfx_frames_dir)
+		return false
+	if meteor_def.cast_intro_frames_dir != EXPECTED_METEOR_FIRE_FALL_FRAMES:
+		push_error("Visual asset smoke failed: meteor cast_intro_frames_dir is %s." % meteor_def.cast_intro_frames_dir)
+		return false
+	if meteor_def.cast_intro_start_offset.x >= 0.0 or meteor_def.cast_intro_start_offset.y >= 0.0:
+		push_error("Visual asset smoke failed: meteor should fall diagonally from upper-left toward impact, got %s." % meteor_def.cast_intro_start_offset)
 		return false
 	return true
 

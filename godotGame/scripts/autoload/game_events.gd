@@ -6,6 +6,7 @@ signal level_up_requested(level: int)
 signal reward_selected(reward_id: StringName)
 signal player_damaged(current_health: float, max_health: float)
 signal skill_cast_requested(skill_id: StringName)
+signal run_skills_changed
 signal run_state_changed
 
 func emit_run_state_changed() -> void:

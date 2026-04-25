@@ -3,6 +3,7 @@ extends Node
 const ProjectileScript := preload("res://scripts/combat/projectile.gd")
 const AreaEffectScript := preload("res://scripts/combat/area_effect.gd")
 const LightningEffectScript := preload("res://scripts/combat/lightning_effect.gd")
+const MeteorStrikeEffectScript := preload("res://scripts/combat/meteor_strike_effect.gd")
 const TargetingSystemScript := preload("res://scripts/combat/targeting_system.gd")
 
 var player: Node2D
@@ -17,6 +18,7 @@ func setup(target_player: Node2D, enemies: Node, projectiles: Node, vfx: Node) -
 	enemy_layer = enemies
 	projectile_layer = projectiles
 	vfx_layer = vfx
+	GameEvents.run_skills_changed.connect(_refresh_equipped_skills)
 	_refresh_equipped_skills()
 
 func _process(delta: float) -> void:
@@ -32,7 +34,7 @@ func _process(delta: float) -> void:
 func _refresh_equipped_skills() -> void:
 	_equipped_skills.clear()
 	_cooldowns.clear()
-	for skill_id: StringName in ContentRegistry.get_default_skill_ids_for_slots(RunState.element_slots):
+	for skill_id: StringName in RunState.active_skill_ids:
 		var skill = ContentRegistry.get_skill_def(skill_id)
 		if skill != null:
 			_equipped_skills.append(skill)
@@ -60,6 +62,12 @@ func _cast_projectile(skill) -> void:
 func _cast_area(skill) -> void:
 	var target = TargetingSystemScript.find_nearest_enemy(player.global_position, enemy_layer)
 	var effect_position: Vector2 = target.global_position if target != null else player.global_position
+	if not skill.cast_intro_frames_dir.is_empty() or not skill.cast_intro_path.is_empty():
+		var meteor := Node2D.new()
+		meteor.set_script(MeteorStrikeEffectScript)
+		vfx_layer.add_child(meteor)
+		meteor.setup(effect_position, skill, DamageSystem.calculate_hit_damage(skill), enemy_layer)
+		return
 	var area := Node2D.new()
 	area.set_script(AreaEffectScript)
 	vfx_layer.add_child(area)

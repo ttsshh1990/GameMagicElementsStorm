@@ -7,7 +7,7 @@
 - `G1-0011` 重做第一批元素美术资源，使其贴合已确认样图风格。
   - 主责：art-agent
   - 状态：待用户确认与后处理
-  - 验收：已删除上一版候选；当前三基础元素图标已确认并已接入 Godot。`skills/elemental-art-assets/assets/game-ready/source-frames/` 中有基于 `imagegen` 的技能图标 / VFX chroma-key RGB 源帧，覆盖小火球、寒冰新星、小闪电、火火火陨石、冰冰冰冰锥、冰火雷元素能量场的部分候选表现。它们仍需用户确认风格，并完成去背、缩放、最终透明 PNG 帧序列、manifest 和 Godot 目标路径整理后，才能作为正式运行时资源接入。
+  - 验收：已删除上一版候选；当前三基础元素图标、三基础技能 VFX、火火火陨石技能图标和陨石落点爆炸 VFX 已确认并已接入 Godot；陨石下落段素材已生成但尚待工程代码引用。`skills/elemental-art-assets/assets/game-ready/source-frames/` 中剩余旧 chroma-key RGB 源帧仍需用户确认风格，并完成去背、缩放、最终透明 PNG 帧序列、manifest 和 Godot 目标路径整理后，才能作为正式运行时资源接入。
 
 - `G1-0006` 重做剩余未定的三元素组合。
   - 主责：design-agent
@@ -53,6 +53,51 @@
 暂无。
 
 ## Done
+
+- `G1-0035` 调整 HUD 和背包式合成面板。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：HUD 只显示冰 / 火 / 雷等级和激活数量，不再显示拥有数量；合成按钮正式逻辑为 3 级前黑色不可点击，debug build 开局解锁；合成面板改为背包格子，前三格高亮当前激活元素，3 个合成框支持选框后点击元素放入材料；`display_layout_smoke_test.gd` 和 `synthesis_smoke_test.gd` 已覆盖。
+
+- `G1-0034` 测试模式开局给三基础元素各 3 个。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：新增 debug-only 设置 `debug/game/start_with_three_each_basic_element=true`；debug build 中 `RunState.reset_run()` 初始库存为火 / 冰 / 雷各 3 个，激活槽仍保持小火球、寒冰新星、小闪电；`synthesis_smoke_test.gd` 已覆盖该初始库存和手动合成。
+
+- `G1-0033` 接入火火火陨石斜向下落段。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：新增 `meteor_strike_effect.gd`，`meteor_fire` 现在先从目标左上方斜向落下，再播放落点爆炸并结算伤害；下落资源来自 `meteor_fire_fall_frames/`，爆炸资源继续来自 `meteor_fire_frames/`；普通范围技能仍走原 `AreaEffect`；已新增并通过 `meteor_strike_smoke_test.gd`。
+
+- `G1-0032` 生成并接入火火火陨石技能图标和 VFX 素材。
+  - 主责：art-agent / engineering-agent
+  - 状态：已完成
+  - 验收：按 art-agent 的 imagegen 子代理隔离流程生成源图；已输出并接入 `icon_skill_meteor_fire_512.png`，`skill_meteor_fire.tres.icon_path` 已改用该图标；已输出并接入陨石落点爆炸 `256x256 x8` 透明 PNG 帧序列到 `meteor_fire_frames/`；已输出陨石下落段 `192x192 x6` 透明 PNG 帧序列到 `meteor_fire_fall_frames/`；后续 `G1-0033` 已完成两段式运行时代码接入。
+
+- `G1-0030` 更新 art-agent 的 imagegen 子代理隔离流程。
+  - 主责：art-agent
+  - 状态：已完成
+  - 验收：`agents/art-agent.md` 已规定后续生产资源或候选 bitmap 资源生成时，主线程只负责 prompt 与资源规格设计，实际 `imagegen` 调用交给独立 sub-agent；`skills/elemental-art-assets/SKILL.md` 已同步该约束，避免 art skill 与 agent 流程冲突。
+
+- `G1-0031` 加入最小元素 / 合成面板并取消自动合成。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：获得元素只增加库存，不自动合成；HUD 显示火 / 冰 / 雷等级、拥有数量和激活数量；元素 / 合成面板可显示库存和激活标记，打开时暂停战斗，可替换选中的激活槽，可选择 3 个基础元素手动合成；`synthesis_smoke_test.gd` 覆盖 3 火不自动合成和手动火火火 -> 陨石。
+
+- `G1-0029` 修正 HUD 和激活技能槽模型。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：新增 `RunState.active_skill_ids` 作为最多 3 个当前激活技能的来源；`SkillController` 只释放激活技能；HUD 第一行显示 3 个激活技能图标，第二行显示火 / 冰 / 雷等级和按激活技能组成拆算的数量；火火火合成后陨石替换小火球；`synthesis_smoke_test.gd` 和 `display_layout_smoke_test.gd` 已覆盖。
+
+- `G1-0028` 生成并接入三基础技能特效帧序列。
+  - 主责：art-agent / engineering-agent
+  - 状态：已完成
+  - 验收：已生成火球、寒冰新星、小闪电连锁段三套 6 帧透明 PNG 序列，并分别接入 `fireball_frames/`、`ice_nova_frames/`、`lightning_chain_frames/`；保持现有 `vfx_fps` 配置不变；`visual_asset_smoke_test.gd` 已验证帧数量、尺寸和配置路径，核心 smoke tests 已通过。
+
+- `G1-0027` 加入获得元素奖励和火火火陨石合成。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：奖励池新增获得火 / 冰 / 雷元素；`BalanceConfig.synthesis_unlock_level=3` 后，3 个火元素可通过 `SynthesisService` 合成为 `meteor_fire` 陨石技能；合成消耗 3 个火元素，保留其他元素；技能列表刷新为陨石、寒冰新星、小闪电；后续 `G1-0031` 已将触发方式改为手动面板合成。
 
 - `G1-0025` 调整玩家和怪物美术显示尺寸。
   - 主责：engineering-agent

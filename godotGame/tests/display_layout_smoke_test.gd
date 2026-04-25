@@ -61,31 +61,66 @@ func _check_ui_layout(main: Node) -> bool:
 	if modal.size != Vector2(420.0, 320.0):
 		push_error("Display layout smoke failed: LevelUpModal size is %s." % modal.size)
 		return false
+	var synthesis_panel := ui_root.get_node_or_null("SynthesisPanel") as Control
+	if synthesis_panel == null:
+		push_error("Display layout smoke failed: SynthesisPanel missing.")
+		return false
+	if synthesis_panel.anchor_left != 0.5 or synthesis_panel.anchor_top != 0.5 or synthesis_panel.anchor_right != 0.5 or synthesis_panel.anchor_bottom != 0.5:
+		push_error("Display layout smoke failed: SynthesisPanel is not center-anchored.")
+		return false
+	ui_root._open_synthesis_panel()
+	if not synthesis_panel.visible:
+		push_error("Display layout smoke failed: SynthesisPanel did not open.")
+		return false
+	if not root.get_node("/root/RunState").is_level_up_paused:
+		push_error("Display layout smoke failed: SynthesisPanel should pause combat while open.")
+		return false
+	if ui_root.synthesis_inventory_grid.get_child_count() < 9:
+		push_error("Display layout smoke failed: SynthesisPanel inventory should show debug inventory slots.")
+		return false
+	if ui_root.synthesis_box_row.get_child_count() != 3:
+		push_error("Display layout smoke failed: SynthesisPanel should show 3 synthesis boxes.")
+		return false
+	if ui_root.synthesis_button.disabled:
+		push_error("Display layout smoke failed: debug synthesis button should be unlocked from start.")
+		return false
+	ui_root._close_synthesis_panel()
 	return true
 
 func _check_element_icon_assets(main: Node) -> bool:
 	var ui_root = main.ui_root
 	var run_state = root.get_node("/root/RunState")
 	var content_registry = root.get_node("/root/ContentRegistry")
-	for element_id: StringName in run_state.element_slots:
-		var element = content_registry.get_element_def(element_id)
-		if element == null:
-			push_error("Display layout smoke failed: missing element def %s." % element_id)
+	for skill_id: StringName in run_state.active_skill_ids:
+		var skill = content_registry.get_skill_def(skill_id)
+		if skill == null:
+			push_error("Display layout smoke failed: missing active skill def %s." % skill_id)
 			return false
-		var image := Image.load_from_file(element.icon_path)
+		var image := Image.load_from_file(skill.icon_path)
 		if image == null or image.is_empty():
-			push_error("Display layout smoke failed: icon failed to load for %s." % element_id)
+			push_error("Display layout smoke failed: icon failed to load for %s." % skill_id)
 			return false
 		if Vector2i(image.get_width(), image.get_height()) != EXPECTED_ICON_SIZE:
-			push_error("Display layout smoke failed: icon %s is %sx%s, expected %sx%s." % [element.icon_path, image.get_width(), image.get_height(), EXPECTED_ICON_SIZE.x, EXPECTED_ICON_SIZE.y])
+			push_error("Display layout smoke failed: icon %s is %sx%s, expected %sx%s." % [skill.icon_path, image.get_width(), image.get_height(), EXPECTED_ICON_SIZE.x, EXPECTED_ICON_SIZE.y])
 			return false
 
-	for slot: Node in ui_root.element_row.get_children():
+	if ui_root.active_slot_row.get_child_count() != 3:
+		push_error("Display layout smoke failed: active slot row should show 3 active skills.")
+		return false
+	if ui_root.element_stats_row.get_child_count() != 3:
+		push_error("Display layout smoke failed: element stats row should show fire, ice, and lightning stats.")
+		return false
+	for stat_label: Node in ui_root.element_stats_row.get_children():
+		if "拥有" in (stat_label as Label).text:
+			push_error("Display layout smoke failed: HUD stats should not show owned inventory counts.")
+			return false
+
+	for slot: Node in ui_root.active_slot_row.get_children():
 		var icon := slot.get_child(0) as TextureRect
 		if icon == null:
-			push_error("Display layout smoke failed: element slot is missing TextureRect.")
+			push_error("Display layout smoke failed: active slot is missing TextureRect.")
 			return false
-		if icon.custom_minimum_size != Vector2(34.0, 34.0):
+		if icon.custom_minimum_size != Vector2(42.0, 42.0):
 			push_error("Display layout smoke failed: HUD icon display size is %s." % icon.custom_minimum_size)
 			return false
 		if icon.stretch_mode != TextureRect.STRETCH_KEEP_ASPECT_CENTERED:

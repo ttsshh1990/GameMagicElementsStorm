@@ -17,3 +17,4 @@ max_alive_cap = 90
 xp_base = 20.0
 xp_growth = 1.22
 xp_drop_base = 1.0
+synthesis_unlock_level = 3

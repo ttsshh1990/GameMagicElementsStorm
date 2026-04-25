@@ -42,6 +42,8 @@ Current approval notes:
 
 For production or candidate bitmap art, including icons, sprites, projectile VFX, impact VFX, aura VFX, and spritesheets, the agent must use the `imagegen` skill and the built-in `image_gen` tool by default.
 
+When working from `agents/art-agent.md`, isolate actual `imagegen` calls in a dedicated sub-agent. The main art-agent thread should design the prompt and asset spec, pass them to the sub-agent, and continue only after the sub-agent returns generated file paths. The sub-agent should only generate the requested bitmap assets and report absolute output paths, intended use, and visible failures or deviations; it should not modify design docs, engineering code, or project records.
+
 Do not create final or candidate bitmap art with deterministic drawing scripts, PIL shape drawing, SVG, canvas, CSS, or procedural compositing unless the user explicitly asks for programmer art, placeholders, masks, layout guides, slicing, or post-processing. Scripts are allowed for:
 
 - moving generated files into the repo;
