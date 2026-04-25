@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/skill_def.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+id = &"fireball"
+display_name = "小火球"
+element_ids = Array[StringName]([&"fire"])
+quality = &"basic"
+cooldown = 0.85
+damage_profile = &"single_lock"
+profile_multiplier = 1.0
+expected_hit_count = 1.0
+targeting_mode = &"nearest_enemy"
+presentation_type = &"projectile"
+icon_path = "res://assets/art/icons/elements/icon_element_fire_512.png"
+vfx_frames_dir = "res://assets/art/vfx/projectiles/fireball_frames"
+vfx_path = "res://assets/art/vfx/projectiles/fireball.png"
+vfx_fps = 12.0
+vfx_loop = true
+effect_type = &"none"
+effect_duration = 0.0
+radius = 0.0
+projectile_speed = 500.0
+chain_count = 0

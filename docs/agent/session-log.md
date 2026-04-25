@@ -107,3 +107,228 @@
 - 任务摘要：用户指出绿色底是问题且大雪花方向不理想，要求回到之前菱形冰晶的大方向，只增加一点冰感。
 - 状态变化：说明绿色底来自 chroma-key 源图，最终游戏候选应使用透明 RGBA PNG；新增菱形冰晶候选 `tmp/art-review/icon_element_ice_diamond_candidate_512.png`；用户确认后，已复制为 `skills/elemental-art-assets/assets/game-ready/icons/icon_element_ice_512.png`；`SKILL.md` 与 `prompt-pack.md` 已把冰元素方向调整为“菱形冰晶主体 + 霜雪细节”，并引用已确认冰图标；`G1-0014` 已完成。
 - 后续交接：冰 / 火 / 雷三个基础元素图标都已在 `skills/elemental-art-assets/assets/game-ready/icons/` 中有 game-ready `512x512` RGBA PNG。后续接入 Godot 时优先使用这些文件。
+
+## 2026-04-25 - Engineering agent 转向通用工程规范
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`agents/engineering-agent.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`docs/production/roadmap.md`、`docs/design/current-design.md`。
+- 任务摘要：根据用户反馈，engineering agent 不应要求固定 v0 原型协议，而应提供能支持任意明确原型任务开工的通用工程规范。
+- 状态变化：`agents/engineering-agent.md` 增加 Godot 项目结构、GDScript 风格、数据配置、场景系统边界、资源接入、Git 变更管理、验证和禁止事项；`G1-0016` 标记为进行中。
+- 后续交接：下一步可继续细化 engineering agent 的规范，或在用户明确进入工程阶段时按该规范创建 Godot 工程。
+
+## 2026-04-25 - 生成 Godot 原型程序架构文档
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`agents/engineering-agent.md`、`docs/design/current-design.md`、`docs/agent/task-board.md`、`docs/production/roadmap.md`、`skills/elemental-art-assets/references/asset-workflow.md`。
+- 任务摘要：根据用户要求，只生成 Godot 原型程序架构文档和架构示意图，不创建 Godot 工程、不写游戏代码、不移动资源。
+- 状态变化：新增 `docs/engineering/godot-prototype-architecture.md`，包含架构目标、目录结构、场景结构、Mermaid 架构图、核心系统、数据资源、资源接入原则和未决设计边界；`agents/engineering-agent.md` 已把该架构文档加入必读上下文；`G1-0016` 与 `G1-0017` 已完成。
+- 后续交接：后续 engineering-agent 开始 Godot 实现时，应先读取该架构文档，并仍然避免运行时直接依赖 `skills/` 目录。
+
+## 2026-04-25 - 确定基础元素攻击方式
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：design-agent。
+- 已读取上下文：`docs/design/current-design.md`、`docs/design/memory.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`docs/agent/session-log.md`。
+- 任务摘要：根据用户定义补齐 1-2 级未合成阶段的火、冰、雷基础元素攻击方式。
+- 状态变化：当前设计新增基础元素攻击表；火为小火球单体攻击，冰为寒冰新星小范围群伤和轻度减速，雷为小闪电连锁弹射 2-3 个目标并短暂麻痹；`G1-0009` 已进入进行中，剩余缺口缩小为 3 级合成 UI 和升级奖励界面最小规则。
+- 后续交接：engineering-agent 实现基础元素攻击时，应保持三者基础期望 DPS 基本一致，冰和雷的控制效果保持轻量。
+
+## 2026-04-25 - 生成第一批元素美术资源
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：`README.md`、`AGENTS.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`agents/art-agent.md`、`docs/design/current-design.md`、`docs/design/memory.md`、`skills/elemental-art-assets/SKILL.md`、`skills/elemental-art-assets/references/prompt-pack.md`、`skills/elemental-art-assets/references/asset-workflow.md`、`docs/production/roadmap.md`、`agents/engineering-agent.md`。
+- 任务摘要：按用户要求使用 art agent 为基础火 / 冰 / 雷、火火火陨石、冰冰冰冰锥、冰火雷元素能量场生成成套可接入 Godot 的图标、弹道 / 主体和命中特效资源。
+- 状态变化：新增第一批 game-ready 资源到 `skills/elemental-art-assets/assets/game-ready/`；新增 `asset_manifest.json`、`GODOT_IMPORT_NOTES.md`、`SOURCE_NOTES.md`、预览图和资源生成脚本；`G1-0011` 已完成；新增 `G1-0015` 作为未来 Godot 工程接入任务。
+- 后续交接：当前仍未创建 Godot 工程。后续进入工程阶段后，engineering-agent 应将 `game-ready` 资源迁移或复制到正式 `res://assets/art/` 目录，并按 manifest 配置 spritesheet 的 `hframes`、帧率和循环方式。
+
+## 2026-04-25 - 第一批元素美术资源被退回
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：已确认三基础元素图标、`skills/elemental-art-assets/assets/game-ready/previews/preview_game_ready_vfx_pack.png`、`SOURCE_NOTES.md`、资源生成脚本。
+- 任务摘要：根据用户反馈检查第一批美术资源是否偏离给定样图风格。
+- 状态变化：确认脚本生成的技能图标和 VFX 确实没有贴合已确认样图风格，主要问题是扁平几何光效、材质层次不足、缺少样图的暗边、厚涂边缘和高完成度元素细节；`G1-0011` 从完成状态退回 Now，状态为需重做；`current-state.md` 和 `SOURCE_NOTES.md` 已标注当前资源不得作为最终 game-ready 资源接入。
+- 后续交接：后续 art-agent 应优先用已确认三基础元素图标作为强参考重新生成或重绘；不能再用当前确定性 PIL 脚本产物冒充最终美术资源。三基础元素图标本身和它们的缩放版仍可保留。
+
+## 2026-04-25 - 重做第一批元素美术资源候选版
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：已确认三基础元素图标、`skills/elemental-art-assets/assets/style-samples/characters-and-enemies-style.png`、用户要求删除上一版并全部重新生成。
+- 任务摘要：删除上一版失败稿，基于三基础元素图标和角色 / 敌人风格样图重新生成基础火 / 冰 / 雷、火火火陨石、冰冰冰冰锥、冰火雷元素能量场的图标、弹道 / 主体和命中特效候选资源。
+- 状态变化：上一版生成的技能图标、VFX、manifest、预览、说明和旧生成脚本已删除；新增 `generate_style_matched_elemental_pack.py`，直接读取三基础元素图标并复用其 alpha 轮廓、光晕、暗边、碎片、火焰旋涡、冰晶簇和黄紫电弧语言；新候选资源写入 `skills/elemental-art-assets/assets/game-ready/`；`G1-0011` 状态改为待用户确认。
+- 后续交接：在用户确认前，不要把这批候选资源标为最终可接入资源。若用户确认风格达标，再将 `G1-0011` 移入 Done，并保留 `G1-0015` 给 engineering-agent 未来接入 Godot。
+
+## 2026-04-25 - 第二版元素美术资源仍被退回
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：`skills/elemental-art-assets/SKILL.md`、`references/asset-workflow.md`、`references/prompt-pack.md`、`imagegen` skill。
+- 任务摘要：根据用户反馈复查整个美术资源 workflow、项目 art skill 和 `imagegen` 工具使用方式。
+- 状态变化：确认第二版候选资源仍不可用；根因是流程错误，实际执行中没有按 `elemental-art-assets` 要求使用 `imagegen` skill 生成 bitmap 资产，也没有按 `imagegen` workflow 逐项使用参考图、chroma-key、保存、验证和迭代，而是用 PIL 脚本合成，导致质量上限过低。`G1-0011` 状态改为流程复盘中。
+- 后续交接：下一轮不得直接批量生成完整包。必须先用 `imagegen` 内置工具，以三元素图标和 `characters-and-enemies-style.png` 为 reference images，生成 1-2 个高价值单项候选并让用户确认；确认后再扩展到整套资源。
+
+## 2026-04-25 - 加固美术资源生成防错规则
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：用户询问为什么没有按 skill 使用 `imagegen`，以及如何避免复发。
+- 任务摘要：将复盘结论写入项目 art skill 和 asset workflow，防止后续 agent 再用脚本合成冒充最终 bitmap 美术资源。
+- 状态变化：`skills/elemental-art-assets/SKILL.md` 新增 Image Generation Gate；`references/asset-workflow.md` 新增 Generation Rule 和 Spritesheet Prompt Rule。规则明确：候选或生产级图标、sprite、VFX、spritesheet 必须默认用 `imagegen`；脚本只能用于移动文件、去背、缩放、切图、预览、manifest 和校验。
+- 后续交接：下一次重做资源时，先用 `imagegen` 生成 1 个 icon 候选和 1 个 VFX / spritesheet 候选，展示给用户确认后再批量生成。
+
+## 2026-04-25 - 使用 imagegen 重做第一批元素资源
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：`docs/design/current-design.md`、`skills/elemental-art-assets/references/prompt-pack.md`、已确认三基础元素图标、`characters-and-enemies-style.png`。
+- 任务摘要：根据用户要求删除上一版候选，并按修正后的 `imagegen` workflow 重新生成基础火 / 冰 / 雷、火火火陨石、冰冰冰冰锥、冰火雷元素能量场的成套图标、弹道 / 主体和命中特效资源。
+- 状态变化：新增 6 张 `image_gen` 源表到 `source-sheets/`；新增去背源表到 `source-sheets-alpha/`；新增 18 个图标、12 个 VFX 横向 spritesheet、`asset_manifest.json`、`GODOT_IMPORT_NOTES.md`、`SOURCE_NOTES.md` 和预览图；`G1-0011` 状态改为待用户确认。
+- 后续交接：当前没有 Godot 工程，不生成 `.import` 或场景文件。若用户确认资源质量，后续 engineering-agent 可按 manifest 将资源迁移或复制到正式 Godot 资源目录并配置 `hframes`、`fps` 和 loop。
+
+## 2026-04-25 - 检查架构模块边界和 Single Source of Truth
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`AGENTS.md`、`agents/engineering-agent.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`docs/agent/session-log.md`、`docs/engineering/godot-prototype-architecture.md`。
+- 任务摘要：根据用户要求，以“模块功能划分清晰”和“所有数据源必须 single source of truth”为标准检查 Godot 原型架构。
+- 状态变化：`docs/engineering/godot-prototype-architecture.md` 已新增模块边界与 single source of truth 规则，并在架构图中加入 `ContentRegistry / DefLoader` 作为统一定义读取入口；`current-state.md` 和 `task-board.md` 已同步记录该架构约束。
+- 后续交接：后续 engineering-agent 创建 Godot 工程时，应优先实现轻量 `ContentRegistry / DefLoader` 或等价读取入口，避免 UI、技能控制、奖励、刷怪和伤害系统各自维护重复定义。架构文档只记录影响程序边界的开放点，不追踪具体未完成的技能、符文池或品质效果设计。
+
+## 2026-04-25 - 收敛架构文档中的未完成设计细节
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`AGENTS.md`、`docs/engineering/godot-prototype-architecture.md`、`docs/agent/task-board.md`、`docs/agent/session-log.md`。
+- 任务摘要：根据用户反馈，架构文档不应记录太多未完成游戏设计细节，除非这些内容会影响程序架构。
+- 状态变化：`docs/engineering/godot-prototype-architecture.md` 将“未决设计边界”改为“架构待定接口”，移除具体未完成技能、符文效果池、紫 / 橙具体效果等内容设计清单，仅保留合成入口、奖励应用、品质扩展、符文扩展这些会影响程序边界的接口要求；`task-board.md` 同步更新验收描述。
+- 后续交接：具体未完成内容仍由 design-agent 在 `docs/design/current-design.md`、`docs/design/memory.md` 和 `docs/agent/task-board.md` 维护；engineering-agent 只在架构文档中维护会影响接口和模块边界的事项。
+
+## 2026-04-25 - 增强 Engineering Agent 工程实现规则
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`AGENTS.md`、`agents/engineering-agent.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`docs/agent/session-log.md`、`docs/design/current-design.md`、`docs/engineering/godot-prototype-architecture.md`。
+- 任务摘要：根据用户要求，为 engineering agent 增加更严格的工程实现规则：遵守架构、补充代码库文档、写清晰注释、架构不适配时先讨论、缺失美术资源使用占位符并记录需求、维护 implementation status。
+- 状态变化：`agents/engineering-agent.md` 已新增架构遵守、代码库文档、注释、资源占位和 implementation status 规则；新增 `docs/engineering/implementation-status.md` 作为工程实现状态入口；`current-state.md` 和 `task-board.md` 已同步记录。
+- 后续交接：后续 engineering-agent 开始 Godot 实现后，必须维护 `docs/engineering/implementation-status.md`，并把缺失美术资源记录为可交给 art agent 的占位资源需求。
+
+## 2026-04-25 - 实现 Godot Prototype 0.1 核心循环
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`AGENTS.md`、`agents/engineering-agent.md`、`docs/design/current-design.md`、`docs/engineering/godot-prototype-architecture.md`、`docs/engineering/implementation-status.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`、`docs/production/roadmap.md`。
+- 任务摘要：安装 Godot 4 环境，并按架构文档创建第一轮可运行核心循环原型。
+- 状态变化：使用 arm64 Homebrew `/opt/homebrew/bin/brew` 安装 Godot 4.6.2；新增 Godot 工程、主场景、核心 autoload、集中数据资源、玩家移动、敌人刷出与追踪、三基础自动技能、XP 拾取、升级暂停、3 选 1 奖励和 headless smoke tests；Godot 工程已统一放在 `godotGame/`；`current-state.md`、`roadmap.md`、`task-board.md`、`implementation-status.md` 已更新为 Godot 原型进行中。
+- 后续交接：后续 engineering-agent 应先运行 headless smoke tests，再继续实现合成 UI、奖励池扩展、正式资源接入或手感调参；缺失美术资源需求已在 `docs/engineering/implementation-status.md` 中列出，可交给 art-agent 逐项生成。
+
+## 2026-04-25 - 将 Godot 工程移动到 godotGame
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`agents/engineering-agent.md`、`agents/art-agent.md`、`docs/engineering/godot-prototype-architecture.md`、`docs/engineering/implementation-status.md`、`docs/agent/current-state.md`、`docs/agent/task-board.md`。
+- 任务摘要：根据用户反馈，将 Godot 程序从仓库根目录移动到独立 `godotGame/` 文件夹，避免与项目文档、agent 文档和 skills 混在同一层。
+- 状态变化：`project.godot`、`scenes/`、`scripts/`、`resources/`、`assets/`、`tests/` 已整体移动到 `godotGame/`；engineering / art agent 规则、架构文档、implementation status、current state、task board 和 roadmap 已同步记录 `godotGame/` 为唯一 Godot 工程根目录。
+- 后续交接：运行 Godot 验证时使用 `--path godotGame`；新增或接入运行时资源时放入 `godotGame/assets/`；不要在仓库根目录重建 Godot 工程目录。
+
+## 2026-04-25 - Computer Use 实际测试 Prototype 0.1
+
+- 入口来源：Codex App 当前 thread + Computer Use。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/project.godot`、Godot 运行窗口、`docs/engineering/implementation-status.md`。
+- 任务摘要：用 Godot GUI 实际启动 `godotGame` 主场景，并通过 Computer Use 观察和按键测试游戏窗口。
+- 状态变化：确认游戏窗口可启动，HUD、三元素图标、敌人刷出、基础技能占位效果和接触伤害可见；发现玩家初始显示在视口左上角，已在 `godotGame/scripts/game/game_world.gd` 增加玩家跟随 `Camera2D` 修复；headless 验证通过。
+- 后续交接：当前仍缺死亡 / 失败 / 重开流程；实际空转约 20 秒会被怪物打到 0 血，后续应实现死亡状态和重开入口。
+
+## 2026-04-25 - 加入 Debug 1 血锁定并继续实测
+
+- 入口来源：Codex App 当前 thread + Computer Use。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/scripts/autoload/run_state.gd`、`godotGame/project.godot`、Godot 运行窗口、`docs/engineering/implementation-status.md`。
+- 任务摘要：根据用户要求加入 debug 模式，让玩家测试时被打到 1 血后不死，并继续实际测试升级奖励流程。
+- 状态变化：新增 `godotGame/scripts/autoload/debug_settings.gd`，通过 Godot debug build 和项目设置 `debug/game/lock_player_health_to_one=true` 控制 1 血锁定；`RunState.damage_player()` 只通过该设置钳制最小生命；headless smoke tests 已覆盖该开关；Computer Use 实测确认生命锁到 `1 / 100`、升级奖励出现、选择奖励后战斗恢复并更新元素等级。
+- 后续交接：debug 锁血仅用于测试；正式死亡 / 失败 / 重开流程仍需后续实现。
+
+## 2026-04-25 - 补测 Prototype 0.1 按键功能
+
+- 入口来源：Codex App 当前 thread + Computer Use。
+- 主责 agent：engineering-agent。
+- 已读取上下文：Godot 运行窗口、`godotGame/scripts/main/main.gd`、`godotGame/scripts/player/player_controller.gd`、`docs/engineering/implementation-status.md`。
+- 任务摘要：回应用户对按键测试遗漏的追问，补充实际窗口按键测试和自动化输入回归测试。
+- 状态变化：Computer Use 实测确认奖励暂停界面会阻止移动；恢复战斗后，WASD 和方向键均可驱动玩家移动，并能继续触发 XP 拾取和升级流程；新增 `godotGame/tests/input_actions_smoke_test.gd`，验证 WASD / 方向键输入映射和暂停态移动阻断；`implementation-status.md`、`current-state.md`、`task-board.md` 已同步。
+- 后续交接：后续改动输入、升级暂停或 UI modal 时必须运行 `input_actions_smoke_test.gd`，并继续用 Computer Use 抽查实际窗口表现。
+
+## 2026-04-25 - 设置 1280x720 横屏基准和 UI 锚点
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/project.godot`、`godotGame/scripts/ui/ui_root.gd`、`godotGame/assets/`、`docs/engineering/implementation-status.md`。
+- 任务摘要：根据用户要求，将当前原型定义为 1280x720 横屏版，并检查当前运行时美术资源尺寸与缩放方式。
+- 状态变化：`project.godot` 已设置 `1280x720`、`canvas_items`、`expand`；HUD 改为左上角锚定，升级奖励面板改为中心锚定；新增 `display_layout_smoke_test.gd` 验证显示设置、UI 锚点、元素图标尺寸和 HUD 图标等比缩放；确认当前火 / 冰 / 雷元素图标均为 `512x512` PNG，适合作为当前 HUD 图标源图。
+- 后续交接：当前只声明并验证横屏适配；竖屏 UI、触屏虚拟摇杆和更完整的手机触控布局尚未实现。后续新增 UI 或运行时图片资源时，应同步扩展 `display_layout_smoke_test.gd` 或资源尺寸检查。
+
+## 2026-04-25 - 补齐占位美术工程接入口
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`agents/engineering-agent.md`、`docs/engineering/implementation-status.md`、`godotGame/scripts/player/player_controller.gd`、`godotGame/scripts/enemies/enemy.gd`、`godotGame/scripts/pickups/xp_shard.gd`、`godotGame/scripts/combat/projectile.gd`、`godotGame/resources/enemies/*.tres`、`godotGame/resources/skills/*.tres`。
+- 任务摘要：根据用户确认，将占位美术从“只有需求文档”补成“代码中有可替换图片接入口”。
+- 状态变化：新增 `VisualAsset` 可选图片 / 帧序列加载辅助；玩家、三类怪物、XP shard 和三基础技能特效支持 `_frames/` 帧序列优先、单张 PNG fallback、缺图则回退当前占位；三类怪物资源新增 `animation_dir`、`animation_fps`、`sprite_path`，基础技能资源新增 `vfx_frames_dir`、`vfx_fps`、`vfx_loop`、`vfx_path`；新增运行时资源目录 README，说明 art agent 应交付的文件名、格式、尺寸和 FPS；新增 `visual_asset_smoke_test.gd` 验证帧序列加载和 fallback 行为。
+- 后续交接：升级 UI 仍使用 Godot 控件占位，后续接正式 UI 皮肤时再实现 theme / panel 资源加载。
+
+## 2026-04-25 - 盘点当前可直接接入的生成资源
+
+- 入口来源：Codex App 新 thread。
+- 主责 agent：art-agent。
+- 已读取上下文：`README.md`、`AGENTS.md`、`docs/agent/current-state.md`、`agents/art-agent.md`、`docs/agent/task-board.md`、`docs/design/current-design.md`、`docs/design/memory.md`、`skills/elemental-art-assets/SKILL.md`、`skills/elemental-art-assets/references/asset-workflow.md`、`skills/elemental-art-assets/references/prompt-pack.md`、`docs/engineering/implementation-status.md`、`godotGame/resources/elements/`、`godotGame/resources/skills/`、`godotGame/scripts/combat/`。
+- 任务摘要：检查现有生成资源与 Godot 运行时目录，判断哪些资产可以直接接入或已经接入。
+- 状态变化：确认当前可直接作为运行时资源使用的只有已确认火 / 冰 / 雷三基础元素图标，且它们已在 `godotGame/assets/art/icons/elements/` 中被元素和技能定义引用。`skills/elemental-art-assets/assets/game-ready/source-frames/` 中的技能图标 / VFX 文件是 chroma-key RGB 源帧，不是最终透明 PNG 帧序列；`game-ready/vfx/`、`source-sheets/`、`source-sheets-alpha/`、`previews/` 当前为空，未发现 `asset_manifest.json`。
+- 后续交接：不要让 Godot 直接引用 `skills/` 目录或 RGB 源帧。若用户确认源帧风格可用，art-agent 下一步应先完成去背、缩放、命名、最终路径整理和 manifest；engineering-agent 再把最终透明 PNG 帧序列接入 `godotGame/assets/art/` 并替换当前脚本绘制占位。
+
+## 2026-04-25 - 支持帧序列动画资源播放
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/scripts/visuals/visual_asset.gd`、玩家 / 怪物 / 拾取物 / 战斗特效脚本、`godotGame/resources/enemies/*.tres`、`godotGame/resources/skills/*.tres`、`docs/engineering/implementation-status.md`。
+- 任务摘要：根据用户说明后续资源会直接生成一组帧序列图，将当前单图接入口升级为帧序列动画播放。
+- 状态变化：`VisualAsset` 新增 `_frames/` 目录加载、`AnimatedSprite2D` 创建和按文件名排序播放；玩家、三类怪物、XP shard、火球、寒冰新星、闪电链均优先播放帧序列，缺帧序列时 fallback 到单张 PNG，再缺失则使用绘制占位；`EnemyDef` 和 `SkillDef` 已补齐动画目录、FPS、循环配置；新增各 `_frames/` 目录 README。
+- 后续交接：art agent 交付动画时直接把透明 PNG 帧放入对应 `_frames/` 目录，命名建议 `frame_000.png` 起递增；不要把 chroma-key RGB 源帧或 `skills/` 目录资源直接给 Godot 引用。
+
+## 2026-04-25 - 裁切并接入玩家和三类怪物帧序列
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`README.md`、`AGENTS.md`、`docs/agent/current-state.md`、`agents/engineering-agent.md`、`docs/engineering/implementation-status.md`、`docs/agent/task-board.md`、`godotGame/assets/art/sprites/*_frames/README.md`、`godotGame/scripts/visuals/visual_asset.gd`、`godotGame/tests/visual_asset_smoke_test.gd`。
+- 任务摘要：根据用户指出“spritesheet 已生成但还是一整张”，按 Godot 工程文档要求把玩家和三类怪物 spritesheet 裁切成可直接播放的 `_frames/` PNG 帧序列。
+- 状态变化：新增玩家 `player_idle_frames/frame_000.png` 至 `frame_003.png`，每帧 `128x128`；新增普通追踪怪 `enemy_chaser_frames/frame_000.png` 至 `frame_003.png`，每帧 `96x96`；新增小型快怪 `enemy_fast_frames/frame_000.png` 至 `frame_003.png`，每帧 `80x80`；新增厚血怪 `enemy_tank_frames/frame_000.png` 至 `frame_003.png`，每帧 `128x128`。`visual_asset_smoke_test.gd` 已补强为验证 4 套帧序列数量、尺寸、配置路径和玩家运行时动画加载。
+- 后续交接：玩家和三类怪物正式帧序列已可直接运行；单张 spritesheet 保留为 fallback / 源参考。后续 art / engineering 接入 XP shard、投射物和技能 VFX 时继续按 `_frames/frame_000.png` 递增命名交付。
+
+## 2026-04-25 - 调整角色和怪物视觉显示尺寸
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：玩家和敌人脚本、`VisualAsset` 缩放逻辑、已接入玩家 / 怪物 PNG 帧尺寸、`docs/engineering/implementation-status.md`。
+- 任务摘要：回应用户反馈“接入玩家角色和 3 个怪物后游戏里非常小”，检查图片尺寸和运行时缩放策略，并修正视觉尺寸。
+- 状态变化：确认图片尺寸正常，问题来自运行时按碰撞半径 `RADIUS * 2 = 36` 缩放；玩家视觉尺寸按用户反馈进一步放大到 `108` world units，普通怪 `84`，快怪 `69`，厚血怪 `108`；三类怪物显示尺寸进入 `EnemyDef.visual_world_size`，碰撞 / 接触半径保持原逻辑。
+- 后续交接：后续调整手感时不要把美术显示大小和碰撞半径重新绑定；如果需要更改怪物显示大小，优先改 `resources/enemies/*.tres` 的 `visual_world_size`。
+
+## 2026-04-25 - 改为浅灰无限重复地面背景
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：`godotGame/scripts/game/game_world.gd`、当前 Godot 运行窗口反馈、`docs/engineering/implementation-status.md`。
+- 任务摘要：根据用户要求，将背景改为接近白色的浅灰无限重复地面，并避免相机移动后看到固定背景边界。
+- 状态变化：`GameWorld._draw()` 不再绘制固定深色矩形，改为围绕玩家位置绘制浅灰底色和重复网格；玩家和三类怪物显示尺寸在上一轮基础上再放大 1.5 倍。
+- 后续交接：该背景是工程占位地面，不是最终美术；后续 art agent 可按浅灰 / 高可读性方向生成正式地面 tile 或材质。
+
+## 2026-04-25 - 降低背景亮度并记录深色角色可读性问题
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户截图、玩家 / 怪物 RGBA 帧尺寸、`GameWorld` 背景绘制逻辑、headless 验证脚本。
+- 任务摘要：回应用户反馈角色和怪物在游戏里像黑块、背景过白刺眼。
+- 状态变化：确认资源有 alpha 且尺寸正常；黑块感主要来自深色主体在运行时尺寸下细节被缩小采样压缩，以及浅白背景提高了暗部压迫感。背景已从接近白色调整为中浅灰，网格同步压暗。
+- 后续交接：如果角色 / 怪物仍然黑，应让 art agent 在资源层增加更明显的亮边、局部高光和中间调分离；工程侧不应无限放大碰撞无关视觉尺寸来解决所有可读性问题。

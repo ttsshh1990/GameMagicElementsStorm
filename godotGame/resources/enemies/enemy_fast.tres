@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/enemy_def.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"fast"
+display_name = "小型快怪"
+hp_multiplier = 0.45
+speed_multiplier = 1.35
+damage_multiplier = 0.7
+xp_multiplier = 0.6
+animation_dir = "res://assets/art/sprites/enemies/enemy_fast_frames"
+animation_fps = 10.0
+sprite_path = "res://assets/art/sprites/enemies/enemy_fast.png"
+visual_world_size = 69.0
+placeholder_color = Color(1.0, 0.55, 0.18, 1)

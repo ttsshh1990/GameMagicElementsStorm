@@ -14,6 +14,31 @@ Before generation, define:
 - `animation`: `single`, `spritesheet`, or frame count.
 - `destination`: repo path for the final project-bound file.
 
+## Generation Rule
+
+Production or review-candidate bitmap assets must be generated with the `imagegen` skill. This includes VFX spritesheets.
+
+Allowed non-imagegen scripting is limited to asset operations after image generation: chroma-key removal, alpha validation, resizing, slicing, manifest generation, preview/contact sheet creation, and file moves. Do not use PIL/SVG/canvas/procedural drawing to create final-looking icons or VFX candidates unless the user explicitly asks for placeholders or programmer art.
+
+For large asset batches, do not generate the whole pack first. Generate a small style checkpoint first:
+
+1. one icon candidate;
+2. one VFX candidate or spritesheet candidate;
+3. preview/contact sheet;
+4. user approval;
+5. full batch.
+
+## Spritesheet Prompt Rule
+
+VFX spritesheets may be generated directly with `imagegen`. Prompt the image as a single horizontal spritesheet or fixed grid with:
+
+- exact frame count and frame arrangement;
+- identical cell size and consistent subject scale;
+- no text, numbers, labels, gutters, borders, or UI;
+- top-down-readable game VFX;
+- flat chroma-key background if transparency is needed;
+- frame-to-frame progression of the same effect, not unrelated variations.
+
 ## Suggested Paths
 
 Use these paths once the project has an asset directory or Godot project:

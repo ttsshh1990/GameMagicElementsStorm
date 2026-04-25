@@ -38,6 +38,21 @@ Current approval notes:
 6. **Update the asset record** using the registry format in `references/asset-workflow.md`.
 7. **Integrate into Godot only when a Godot project exists**. If it does not, create a clear engineering handoff task instead of inventing project files.
 
+## Image Generation Gate
+
+For production or candidate bitmap art, including icons, sprites, projectile VFX, impact VFX, aura VFX, and spritesheets, the agent must use the `imagegen` skill and the built-in `image_gen` tool by default.
+
+Do not create final or candidate bitmap art with deterministic drawing scripts, PIL shape drawing, SVG, canvas, CSS, or procedural compositing unless the user explicitly asks for programmer art, placeholders, masks, layout guides, slicing, or post-processing. Scripts are allowed for:
+
+- moving generated files into the repo;
+- chroma-key removal;
+- resizing confirmed art;
+- slicing a confirmed spritesheet into frames;
+- making contact sheets / previews;
+- validating dimensions, alpha channels, and manifest records.
+
+Before generating any new bitmap art, state which reference images will be used and whether the output is a single image, a spritesheet, or a post-processed transparent PNG. If the request is large, generate 1-2 representative assets first and wait for user confirmation before expanding to the full set.
+
 ## Style Contract
 
 - Camera: 2D top-down or top-down-readable asset presentation.

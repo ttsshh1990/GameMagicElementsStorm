@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ElementDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/element_def.gd" id="1_element"]
+
+[resource]
+script = ExtResource("1_element")
+id = &"fire"
+display_name = "火"
+element_type = &"fire"
+icon_path = "res://assets/art/icons/elements/icon_element_fire_512.png"
+default_skill_id = &"fireball"

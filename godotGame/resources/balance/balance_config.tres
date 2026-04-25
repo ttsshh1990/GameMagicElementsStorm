@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="BalanceConfig" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/balance_config.gd" id="1_balance"]
+
+[resource]
+script = ExtResource("1_balance")
+base_dps = 10.0
+target_ttk = 3.0
+enemy_hp_base = 30.0
+time_growth = 0.1
+level_growth = 0.04
+element_level_bonus = 0.12
+contact_damage_base = 10.0
+spawn_rate_base = 1.0
+max_alive_base = 20
+max_alive_cap = 90
+xp_base = 20.0
+xp_growth = 1.22
+xp_drop_base = 1.0

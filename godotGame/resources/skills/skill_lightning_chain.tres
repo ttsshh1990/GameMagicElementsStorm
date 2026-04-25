@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/skill_def.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+id = &"lightning_chain"
+display_name = "小闪电"
+element_ids = Array[StringName]([&"lightning"])
+quality = &"basic"
+cooldown = 1.05
+damage_profile = &"chain"
+profile_multiplier = 1.0
+expected_hit_count = 4.0
+targeting_mode = &"nearest_enemy"
+presentation_type = &"chain"
+icon_path = "res://assets/art/icons/elements/icon_element_lightning_512.png"
+vfx_frames_dir = "res://assets/art/vfx/beams/lightning_chain_frames"
+vfx_path = "res://assets/art/vfx/beams/lightning_chain_sheet.png"
+vfx_fps = 16.0
+vfx_loop = false
+effect_type = &"stun"
+effect_duration = 0.35
+radius = 260.0
+projectile_speed = 0.0
+chain_count = 3

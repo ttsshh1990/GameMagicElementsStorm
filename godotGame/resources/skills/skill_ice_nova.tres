@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="SkillDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/skill_def.gd" id="1_skill"]
+
+[resource]
+script = ExtResource("1_skill")
+id = &"ice_nova"
+display_name = "寒冰新星"
+element_ids = Array[StringName]([&"ice"])
+quality = &"basic"
+cooldown = 1.45
+damage_profile = &"area_burst"
+profile_multiplier = 1.1
+expected_hit_count = 3.0
+targeting_mode = &"nearest_enemy"
+presentation_type = &"area"
+icon_path = "res://assets/art/icons/elements/icon_element_ice_512.png"
+vfx_frames_dir = "res://assets/art/vfx/areas/ice_nova_frames"
+vfx_path = "res://assets/art/vfx/areas/ice_nova_sheet.png"
+vfx_fps = 12.0
+vfx_loop = false
+effect_type = &"slow"
+effect_duration = 1.3
+radius = 92.0
+projectile_speed = 0.0
+chain_count = 0

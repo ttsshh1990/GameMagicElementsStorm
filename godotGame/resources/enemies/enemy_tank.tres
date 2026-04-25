@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="EnemyDef" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/data_defs/enemy_def.gd" id="1_enemy"]
+
+[resource]
+script = ExtResource("1_enemy")
+id = &"tank"
+display_name = "厚血怪"
+hp_multiplier = 2.5
+speed_multiplier = 0.7
+damage_multiplier = 1.4
+xp_multiplier = 2.0
+animation_dir = "res://assets/art/sprites/enemies/enemy_tank_frames"
+animation_fps = 6.0
+sprite_path = "res://assets/art/sprites/enemies/enemy_tank.png"
+visual_world_size = 108.0
+placeholder_color = Color(0.55, 0.15, 0.18, 1)
