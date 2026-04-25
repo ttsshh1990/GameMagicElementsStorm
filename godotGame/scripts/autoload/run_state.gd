@@ -106,11 +106,11 @@ func get_activation_skill_ids() -> Array[StringName]:
 	var result: Array[StringName] = []
 	for element_id: StringName in [&"fire", &"ice", &"lightning"]:
 		var element = ContentRegistry.get_element_def(element_id)
-		if element != null and get_owned_element_count(element_id) > 0:
-			result.append(element.default_skill_id)
+		for _index in range(get_owned_element_count(element_id)):
+			if element != null:
+				result.append(element.default_skill_id)
 	for skill_id: StringName in synthesized_skill_ids:
-		if not skill_id in result:
-			result.append(skill_id)
+		result.append(skill_id)
 	return result
 
 func set_active_skill(slot_index: int, skill_id: StringName) -> bool:
@@ -143,9 +143,14 @@ func is_synthesis_unlocked() -> bool:
 	return player_level >= unlock_level
 
 func _get_initial_element_slots() -> Array[StringName]:
-	if has_node("/root/DebugSettings") and DebugSettings.start_with_three_each_basic_element:
-		return [&"fire", &"fire", &"fire", &"ice", &"ice", &"ice", &"lightning", &"lightning", &"lightning"]
-	return [&"fire", &"ice", &"lightning"]
+	var count_per_basic := 1
+	if has_node("/root/DebugSettings"):
+		count_per_basic = maxi(1, DebugSettings.initial_basic_element_count)
+	var slots: Array[StringName] = []
+	for element_id: StringName in [&"fire", &"ice", &"lightning"]:
+		for _index in range(count_per_basic):
+			slots.append(element_id)
+	return slots
 
 func _can_activate_skill_in_slot(slot_index: int, skill_id: StringName) -> bool:
 	var skill = ContentRegistry.get_skill_def(skill_id)

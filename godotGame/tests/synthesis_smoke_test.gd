@@ -17,12 +17,40 @@ func _run() -> void:
 		quit(1)
 		return
 
-	if run_state.get_owned_element_count(&"fire") != 3 or run_state.get_owned_element_count(&"ice") != 3 or run_state.get_owned_element_count(&"lightning") != 3:
-		push_error("Synthesis smoke failed: debug initial element inventory should start with three fire, ice, and lightning.")
+	if run_state.get_owned_element_count(&"fire") != 9 or run_state.get_owned_element_count(&"ice") != 9 or run_state.get_owned_element_count(&"lightning") != 9:
+		push_error("Synthesis smoke failed: debug initial element inventory should start with nine fire, ice, and lightning.")
 		quit(1)
 		return
 	if run_state.active_skill_ids != [&"fireball", &"ice_nova", &"lightning_chain"]:
 		push_error("Synthesis smoke failed: initial active skills should be fireball, ice nova, and lightning chain.")
+		quit(1)
+		return
+	if _count_skill_id(run_state.get_activation_skill_ids(), &"ice_nova") != 9:
+		push_error("Synthesis smoke failed: each owned ice element should expose one ice nova activation entry.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(0, &"ice_nova") or not run_state.set_active_skill(1, &"ice_nova") or not run_state.set_active_skill(2, &"ice_nova"):
+		push_error("Synthesis smoke failed: three owned ice elements should allow three active ice novas.")
+		quit(1)
+		return
+	if run_state.active_skill_ids != [&"ice_nova", &"ice_nova", &"ice_nova"]:
+		push_error("Synthesis smoke failed: duplicate basic skills should be valid active slots.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(0, &"fireball") or not run_state.set_active_skill(2, &"lightning_chain"):
+		push_error("Synthesis smoke failed: active slots should be restorable after duplicate basic skill activation.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(1, &"fireball") or not run_state.set_active_skill(2, &"fireball"):
+		push_error("Synthesis smoke failed: three owned fire elements should allow three active fireballs.")
+		quit(1)
+		return
+	if run_state.active_skill_ids != [&"fireball", &"fireball", &"fireball"]:
+		push_error("Synthesis smoke failed: duplicate fireball active slots are incorrect.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(1, &"ice_nova") or not run_state.set_active_skill(2, &"lightning_chain"):
+		push_error("Synthesis smoke failed: active slots should restore to baseline before synthesis.")
 		quit(1)
 		return
 
@@ -54,7 +82,7 @@ func _run() -> void:
 		push_error("Synthesis smoke failed: fire-fire-fire should not auto synthesize after gaining the third fire.")
 		quit(1)
 		return
-	if run_state.get_owned_element_count(&"fire") != 3:
+	if run_state.get_owned_element_count(&"fire") != 9:
 		push_error("Synthesis smoke failed: owned inactive fire count is incorrect before manual synthesis.")
 		quit(1)
 		return
@@ -69,8 +97,8 @@ func _run() -> void:
 		push_error("Synthesis smoke failed: fire-fire-fire did not synthesize meteor.")
 		quit(1)
 		return
-	if run_state.element_slots.has(&"fire"):
-		push_error("Synthesis smoke failed: fire elements were not consumed.")
+	if run_state.get_owned_element_count(&"fire") != 6:
+		push_error("Synthesis smoke failed: fire synthesis should consume exactly three of nine fire elements.")
 		quit(1)
 		return
 	if not run_state.element_slots.has(&"ice") or not run_state.element_slots.has(&"lightning"):
@@ -91,8 +119,50 @@ func _run() -> void:
 		push_error("Synthesis smoke failed: synthesized run skill list is incorrect.")
 		quit(1)
 		return
+	if not run_state.set_active_skill(0, &"fireball") or not run_state.set_active_skill(1, &"fireball") or not run_state.set_active_skill(2, &"fireball"):
+		push_error("Synthesis smoke failed: remaining fire instances should support three active fireballs before second synthesis.")
+		quit(1)
+		return
+	if not run_state.synthesize_elements(selected_elements):
+		push_error("Synthesis smoke failed: repeated fire-fire-fire synthesis should create another meteor instance.")
+		quit(1)
+		return
+	await process_frame
+	if _count_skill_id(run_state.synthesized_skill_ids, &"meteor_fire") != 2:
+		push_error("Synthesis smoke failed: repeated synthesis should keep two owned meteor instances.")
+		quit(1)
+		return
+	if _count_skill_id(run_state.get_activation_skill_ids(), &"meteor_fire") != 2:
+		push_error("Synthesis smoke failed: activation choices should include one entry per owned meteor instance.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(1, &"meteor_fire"):
+		push_error("Synthesis smoke failed: two owned meteor instances should allow two active meteors.")
+		quit(1)
+		return
+	if run_state.set_active_skill(2, &"meteor_fire"):
+		push_error("Synthesis smoke failed: two owned meteor instances should not allow three active meteors.")
+		quit(1)
+		return
+	if not run_state.set_active_skill(0, &"fireball") or not run_state.set_active_skill(1, &"fireball") or not run_state.set_active_skill(2, &"fireball"):
+		push_error("Synthesis smoke failed: last three fire instances should support three active fireballs before third synthesis.")
+		quit(1)
+		return
+	if not run_state.synthesize_elements(selected_elements):
+		push_error("Synthesis smoke failed: third fire-fire-fire synthesis should consume the last fire instances.")
+		quit(1)
+		return
+	await process_frame
+	if &"fireball" in run_state.active_skill_ids:
+		push_error("Synthesis smoke failed: synthesis should repair active slots that no longer have backing fire instances.")
+		quit(1)
+		return
+	if _count_skill_id(run_state.synthesized_skill_ids, &"meteor_fire") != 3:
+		push_error("Synthesis smoke failed: third synthesis should keep three owned meteor instances.")
+		quit(1)
+		return
 
-	print("Synthesis smoke passed: element gain rewards and fire-fire-fire meteor synthesis work.")
+	print("Synthesis smoke passed: element gain rewards, repeated synthesis, and duplicate active skills work.")
 	quit(0)
 
 func _contains_reward(rewards: Array, reward_id: StringName) -> bool:
@@ -100,3 +170,10 @@ func _contains_reward(rewards: Array, reward_id: StringName) -> bool:
 		if reward.id == reward_id:
 			return true
 	return false
+
+func _count_skill_id(skill_ids: Array, skill_id: StringName) -> int:
+	var count := 0
+	for candidate_id: StringName in skill_ids:
+		if candidate_id == skill_id:
+			count += 1
+	return count

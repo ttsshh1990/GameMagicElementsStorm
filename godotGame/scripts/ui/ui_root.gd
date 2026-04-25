@@ -2,11 +2,12 @@ extends CanvasLayer
 
 const HUD_MARGIN := Vector2(18.0, 16.0)
 const HUD_SIZE := Vector2(460.0, 168.0)
+const VIEWPORT_SIZE := Vector2(1280.0, 720.0)
 const MODAL_SIZE := Vector2(420.0, 320.0)
-const SYNTHESIS_PANEL_SIZE := Vector2(620.0, 470.0)
+const SYNTHESIS_PANEL_SIZE := Vector2(720.0, 620.0)
 const REWARD_BUTTON_SIZE := Vector2(360.0, 68.0)
 const ACTIVE_ICON_SIZE := Vector2(42.0, 42.0)
-const INVENTORY_SLOT_SIZE := Vector2(96.0, 68.0)
+const INVENTORY_SLOT_SIZE := Vector2(86.0, 56.0)
 
 var reward_system: Node
 var health_label: Label
@@ -115,14 +116,8 @@ func _build_synthesis_panel() -> void:
 	synthesis_panel = PanelContainer.new()
 	synthesis_panel.name = "SynthesisPanel"
 	synthesis_panel.visible = false
-	synthesis_panel.anchor_left = 0.5
-	synthesis_panel.anchor_top = 0.5
-	synthesis_panel.anchor_right = 0.5
-	synthesis_panel.anchor_bottom = 0.5
-	synthesis_panel.offset_left = -SYNTHESIS_PANEL_SIZE.x * 0.5
-	synthesis_panel.offset_top = -SYNTHESIS_PANEL_SIZE.y * 0.5
-	synthesis_panel.offset_right = SYNTHESIS_PANEL_SIZE.x * 0.5
-	synthesis_panel.offset_bottom = SYNTHESIS_PANEL_SIZE.y * 0.5
+	synthesis_panel.position = (VIEWPORT_SIZE - SYNTHESIS_PANEL_SIZE) * 0.5
+	synthesis_panel.size = SYNTHESIS_PANEL_SIZE
 	add_child(synthesis_panel)
 
 	var margin := MarginContainer.new()
@@ -139,7 +134,7 @@ func _build_synthesis_panel() -> void:
 	root.add_child(header)
 	var title := Label.new()
 	title.text = "元素 / 合成"
-	title.custom_minimum_size = Vector2(480.0, 28.0)
+	title.custom_minimum_size = Vector2(600.0, 28.0)
 	header.add_child(title)
 	var close_button := Button.new()
 	close_button.text = "关闭"
@@ -149,27 +144,30 @@ func _build_synthesis_panel() -> void:
 	var inventory_title := Label.new()
 	inventory_title.text = "元素背包"
 	root.add_child(inventory_title)
+	var inventory_scroll := ScrollContainer.new()
+	inventory_scroll.custom_minimum_size = Vector2(660.0, 224.0)
+	inventory_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	root.add_child(inventory_scroll)
 	synthesis_inventory_grid = GridContainer.new()
-	synthesis_inventory_grid.columns = 5
-	synthesis_inventory_grid.custom_minimum_size = Vector2(560.0, 154.0)
-	root.add_child(synthesis_inventory_grid)
+	synthesis_inventory_grid.columns = 7
+	inventory_scroll.add_child(synthesis_inventory_grid)
 
 	var synthesis_title := Label.new()
 	synthesis_title.text = "合成框"
 	root.add_child(synthesis_title)
 	synthesis_box_row = HBoxContainer.new()
-	synthesis_box_row.custom_minimum_size = Vector2(560.0, 58.0)
+	synthesis_box_row.custom_minimum_size = Vector2(660.0, 54.0)
 	root.add_child(synthesis_box_row)
 
 	var activation_title := Label.new()
 	activation_title.text = "替换选中的激活槽"
 	root.add_child(activation_title)
 	synthesis_activation_row = HBoxContainer.new()
-	synthesis_activation_row.custom_minimum_size = Vector2(560.0, 62.0)
+	synthesis_activation_row.custom_minimum_size = Vector2(660.0, 48.0)
 	root.add_child(synthesis_activation_row)
 
 	selected_ingredients_label = Label.new()
-	selected_ingredients_label.custom_minimum_size = Vector2(560.0, 24.0)
+	selected_ingredients_label.custom_minimum_size = Vector2(660.0, 24.0)
 	root.add_child(selected_ingredients_label)
 
 	var ingredient_row := HBoxContainer.new()
@@ -187,7 +185,7 @@ func _build_synthesis_panel() -> void:
 	ingredient_row.add_child(synthesize_button)
 
 	synthesis_status_label = Label.new()
-	synthesis_status_label.custom_minimum_size = Vector2(560.0, 42.0)
+	synthesis_status_label.custom_minimum_size = Vector2(660.0, 32.0)
 	root.add_child(synthesis_status_label)
 
 func _update_hud() -> void:
@@ -319,13 +317,17 @@ func _rebuild_synthesis_activation_choices() -> void:
 		button.custom_minimum_size = Vector2(54.0, 44.0)
 		button.pressed.connect(_select_active_slot.bind(index))
 		synthesis_activation_row.add_child(button)
+	var shown_skill_ids := {}
 	for skill_id: StringName in RunState.get_activation_skill_ids():
+		if shown_skill_ids.has(skill_id):
+			continue
+		shown_skill_ids[skill_id] = true
 		var skill = ContentRegistry.get_skill_def(skill_id)
 		if skill == null:
 			continue
 		var button := Button.new()
 		button.text = skill.display_name
-		button.custom_minimum_size = Vector2(120.0, 44.0)
+		button.custom_minimum_size = Vector2(112.0, 44.0)
 		button.disabled = not RunState.can_activate_skill_in_slot(selected_active_slot, skill_id)
 		button.pressed.connect(_activate_selected_slot.bind(skill_id))
 		synthesis_activation_row.add_child(button)

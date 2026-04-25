@@ -9,3 +9,4 @@ Smoke tests and future Godot validation scripts live here.
 - `visual_asset_smoke_test.gd`: validates optional runtime art frame loading, single-image fallback, and missing-asset fallback behavior.
 - `synthesis_smoke_test.gd`: validates element gain rewards, no auto-synthesis on three fire, and the manual fire-fire-fire meteor synthesis path.
 - `meteor_strike_smoke_test.gd`: validates the meteor skill's diagonal falling intro before impact VFX.
+- `duplicate_skill_visual_smoke_test.gd`: validates duplicate active meteor slots stagger casts and spread impact positions.

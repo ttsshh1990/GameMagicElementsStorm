@@ -7,7 +7,7 @@
 - `G1-0011` 重做第一批元素美术资源，使其贴合已确认样图风格。
   - 主责：art-agent
   - 状态：待用户确认与后处理
-  - 验收：已删除上一版候选；当前三基础元素图标、三基础技能 VFX、火火火陨石技能图标和陨石落点爆炸 VFX 已确认并已接入 Godot；陨石下落段素材已生成但尚待工程代码引用。`skills/elemental-art-assets/assets/game-ready/source-frames/` 中剩余旧 chroma-key RGB 源帧仍需用户确认风格，并完成去背、缩放、最终透明 PNG 帧序列、manifest 和 Godot 目标路径整理后，才能作为正式运行时资源接入。
+  - 验收：已删除上一版候选；当前三基础元素图标、三基础技能 VFX、火火火陨石技能图标、陨石斜向下落段和陨石落点爆炸 VFX 已确认并已接入 Godot。`skills/elemental-art-assets/assets/game-ready/source-frames/` 中剩余旧 chroma-key RGB 源帧仍需用户确认风格，并完成去背、缩放、最终透明 PNG 帧序列、manifest 和 Godot 目标路径整理后，才能作为正式运行时资源接入。
 
 - `G1-0006` 重做剩余未定的三元素组合。
   - 主责：design-agent
@@ -54,6 +54,21 @@
 
 ## Done
 
+- `G1-0038` 修正重复陨石完全重叠。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：3 个陨石激活槽不再同帧同点释放；重复技能槽位有初始冷却错开，重复范围技能落点有小幅确定性散布；`duplicate_skill_visual_smoke_test.gd` 已覆盖。
+
+- `G1-0036` 支持同名技能重复激活和重复合成实例。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：基础元素和合成元素都按拥有实例数提供可激活技能；3 个冰元素可同时激活 3 个寒冰新星；重复火火火合成可获得多个 `meteor_fire` 实例；激活槽最多只能使用已拥有数量；`synthesis_smoke_test.gd` 已覆盖。
+
+- `G1-0037` 测试模式初始基础元素数量改为每种 9 个。
+  - 主责：engineering-agent
+  - 状态：已完成
+  - 验收：新增 debug-only 数量设置 `debug/game/initial_basic_element_count=9`；debug build 中 `RunState.reset_run()` 初始库存为火 / 冰 / 雷各 9 个，激活槽仍保持小火球、寒冰新星、小闪电；`synthesis_smoke_test.gd` 已覆盖该初始库存。
+
 - `G1-0035` 调整 HUD 和背包式合成面板。
   - 主责：engineering-agent
   - 状态：已完成
@@ -62,7 +77,7 @@
 - `G1-0034` 测试模式开局给三基础元素各 3 个。
   - 主责：engineering-agent
   - 状态：已完成
-  - 验收：新增 debug-only 设置 `debug/game/start_with_three_each_basic_element=true`；debug build 中 `RunState.reset_run()` 初始库存为火 / 冰 / 雷各 3 个，激活槽仍保持小火球、寒冰新星、小闪电；`synthesis_smoke_test.gd` 已覆盖该初始库存和手动合成。
+  - 验收：历史任务，后续已由 `G1-0037` 改为可配置数量 `debug/game/initial_basic_element_count=9`。
 
 - `G1-0033` 接入火火火陨石斜向下落段。
   - 主责：engineering-agent

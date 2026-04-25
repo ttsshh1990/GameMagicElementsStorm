@@ -6,6 +6,9 @@ const LightningEffectScript := preload("res://scripts/combat/lightning_effect.gd
 const MeteorStrikeEffectScript := preload("res://scripts/combat/meteor_strike_effect.gd")
 const TargetingSystemScript := preload("res://scripts/combat/targeting_system.gd")
 
+const DUPLICATE_SKILL_STAGGER := 0.22
+const DUPLICATE_AREA_SPREAD := 72.0
+
 var player: Node2D
 var enemy_layer: Node
 var projectile_layer: Node
@@ -24,29 +27,35 @@ func setup(target_player: Node2D, enemies: Node, projectiles: Node, vfx: Node) -
 func _process(delta: float) -> void:
 	if RunState.is_level_up_paused:
 		return
-	for skill in _equipped_skills:
-		var remaining := float(_cooldowns.get(skill.id, 0.0)) - delta
+	for entry: Dictionary in _equipped_skills:
+		var slot_index := int(entry.get("slot_index", -1))
+		var skill = entry.get("skill")
+		var remaining := float(_cooldowns.get(slot_index, 0.0)) - delta
 		if remaining <= 0.0:
-			_cast_skill(skill)
+			_cast_skill(skill, slot_index)
 			remaining = skill.cooldown
-		_cooldowns[skill.id] = remaining
+		_cooldowns[slot_index] = remaining
 
 func _refresh_equipped_skills() -> void:
 	_equipped_skills.clear()
 	_cooldowns.clear()
-	for skill_id: StringName in RunState.active_skill_ids:
+	for slot_index in range(RunState.active_skill_ids.size()):
+		var skill_id := RunState.active_skill_ids[slot_index]
 		var skill = ContentRegistry.get_skill_def(skill_id)
 		if skill != null:
-			_equipped_skills.append(skill)
-			_cooldowns[skill.id] = 0.15
+			_equipped_skills.append({
+				"slot_index": slot_index,
+				"skill": skill,
+			})
+			_cooldowns[slot_index] = 0.15 + _get_duplicate_skill_ordinal(skill_id, slot_index) * DUPLICATE_SKILL_STAGGER
 
-func _cast_skill(skill) -> void:
+func _cast_skill(skill, slot_index: int) -> void:
 	GameEvents.skill_cast_requested.emit(skill.id)
 	match skill.presentation_type:
 		&"projectile":
 			_cast_projectile(skill)
 		&"area":
-			_cast_area(skill)
+			_cast_area(skill, slot_index)
 		&"chain":
 			_cast_chain(skill)
 
@@ -59,9 +68,10 @@ func _cast_projectile(skill) -> void:
 	projectile_layer.add_child(projectile)
 	projectile.setup(player.global_position, player.global_position.direction_to(target.global_position), skill, DamageSystem.calculate_hit_damage(skill), enemy_layer)
 
-func _cast_area(skill) -> void:
+func _cast_area(skill, slot_index: int) -> void:
 	var target = TargetingSystemScript.find_nearest_enemy(player.global_position, enemy_layer)
 	var effect_position: Vector2 = target.global_position if target != null else player.global_position
+	effect_position += _get_duplicate_area_offset(skill.id, slot_index)
 	if not skill.cast_intro_frames_dir.is_empty() or not skill.cast_intro_path.is_empty():
 		var meteor := Node2D.new()
 		meteor.set_script(MeteorStrikeEffectScript)
@@ -86,3 +96,26 @@ func _cast_chain(skill) -> void:
 	effect.set_script(LightningEffectScript)
 	vfx_layer.add_child(effect)
 	effect.setup(effect_points, skill)
+
+func _get_duplicate_skill_ordinal(skill_id: StringName, slot_index: int) -> int:
+	var ordinal := 0
+	for index in range(mini(slot_index, RunState.active_skill_ids.size())):
+		if RunState.active_skill_ids[index] == skill_id:
+			ordinal += 1
+	return ordinal
+
+func _get_active_skill_count(skill_id: StringName) -> int:
+	var count := 0
+	for active_skill_id: StringName in RunState.active_skill_ids:
+		if active_skill_id == skill_id:
+			count += 1
+	return count
+
+func _get_duplicate_area_offset(skill_id: StringName, slot_index: int) -> Vector2:
+	var duplicate_count := _get_active_skill_count(skill_id)
+	if duplicate_count <= 1:
+		return Vector2.ZERO
+	var ordinal := _get_duplicate_skill_ordinal(skill_id, slot_index)
+	var centered_index := float(ordinal) - float(duplicate_count - 1) * 0.5
+	# Duplicate area skills target the same enemy; a small deterministic spread keeps each cast readable.
+	return Vector2(centered_index * DUPLICATE_AREA_SPREAD, absf(centered_index) * DUPLICATE_AREA_SPREAD * 0.35)

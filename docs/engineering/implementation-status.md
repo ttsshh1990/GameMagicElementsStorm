@@ -1,6 +1,6 @@
 # Implementation Status
 
-最后更新：2026-04-25
+最后更新：2026-04-26
 
 本文件是 Godot 工程实现状态入口。它只记录工程实现进度，不替代 `docs/design/current-design.md`、`docs/engineering/godot-prototype-architecture.md` 或 `docs/agent/task-board.md`。
 
@@ -35,13 +35,16 @@
 - 已实现敌人追踪、接触伤害、死亡掉落 XP。
 - 已实现 XP shard 拾取和升级暂停。
 - 已实现 3 选 1 奖励界面，当前奖励包含火 / 冰 / 雷元素强化和火 / 冰 / 雷元素获得。
-- 已实现最小元素合成链路：3 级后可在元素 / 合成面板中手动选择 3 个火元素，消耗它们并加入陨石技能 `meteor_fire`。
+- 已实现最小元素合成链路：3 级后可在元素 / 合成面板中手动选择 3 个火元素，消耗它们并加入一个陨石元素 / 技能实例 `meteor_fire`。
 - 已新增 `SynthesisService` 和 `resources/synthesis/recipe_meteor_fire.tres`；合成配方来自 `SynthesisRecipeDef` 资源，不写死在 UI 或技能脚本里。
+- 同一配方允许重复合成；`RunState.synthesized_skill_ids` 按实例保存同名高级元素，激活槽按拥有实例数量限制，而不是按技能 ID 去重。`SkillController` 按激活槽维护冷却，重复激活的同名技能会作为多个技能实例释放。
+- 同名范围技能多实例释放时会做可见性处理：重复技能槽的初始冷却错开，范围落点按槽位做小幅散布，避免 3 个陨石完全同帧同点重叠成一个特效。
 - 已将合成解锁等级放入 `BalanceConfig.synthesis_unlock_level`，当前值为 `3`。
 - 已新增陨石技能定义 `resources/skills/skill_meteor_fire.tres`；技能释放、伤害和 VFX 接入口继续走 `SkillDef`、`DamageSystem` 和 `SkillController`。
 - HUD 已改为显示最多 3 个当前激活元素 / 技能槽；火火火合成后，陨石会替换基础火技能小火球。
 - HUD 会另外显示冰 / 火 / 雷的当前等级和激活元素拆算数量，例如火火火陨石按火 x3 统计；HUD 不再显示拥有数量。
 - 已新增最小元素 / 合成面板：类似背包格子显示每个已拥有元素，前三格高亮表示当前激活元素；3 个合成框支持“选框后点元素”放入材料，并可手动执行合成。
+- 合成面板已适配 debug 初始 27 个基础元素：背包格子区域固定高度并可滚动，激活技能选择按技能类型去重显示，面板固定在 1280x720 画布内，避免底部合成按钮溢出窗口。
 - HUD 已锚定左上角；升级奖励面板已锚定画布中心，适配电脑、平板和手机横屏窗口缩放。
 - 已实现三基础自动技能：小火球、寒冰新星、小闪电。
 - 已新增运行时美术接入辅助：`VisualAsset` 会从 `godotGame/assets/` 加载可选图片资源；缺失时返回 `null`，由对应脚本绘制占位符。
@@ -56,7 +59,7 @@
 - 角色和怪物的视觉尺寸已和碰撞半径解耦：玩家显示约 `108` world units；普通怪约 `84`；快怪约 `69`；厚血怪约 `108`。碰撞 / 接触逻辑仍使用当前半径，不随图片显示尺寸自动变大。
 - 已通过实际 Godot 窗口测试修复玩家显示在视口左上角的问题；当前玩家由 `Camera2D` 居中跟随。
 - 已新增 debug-only 1 血锁定模式：`DebugSettings` 只在 Godot debug build 中读取 `debug/game/lock_player_health_to_one=true`，用于测试时防止玩家死亡。
-- 已新增 debug-only 初始库存和开局解锁合成模式：`DebugSettings` 只在 Godot debug build 中读取 `debug/game/start_with_three_each_basic_element=true` 和 `debug/game/unlock_synthesis_from_start=true`，用于开局给火 / 冰 / 雷各 3 个基础元素并直接打开合成面板测试。
+- 已新增 debug-only 初始库存和开局解锁合成模式：`DebugSettings` 只在 Godot debug build 中读取 `debug/game/initial_basic_element_count=9` 和 `debug/game/unlock_synthesis_from_start=true`，用于开局给火 / 冰 / 雷各 9 个基础元素并直接打开合成面板测试。
 - 已将已确认的火 / 冰 / 雷元素图标复制到 Godot 运行时 `godotGame/assets/art/icons/elements/`。
 - 2026-04-25 美术资源盘点确认：当前可以直接作为运行时资源使用的生成资产只有三基础元素图标。`skills/elemental-art-assets/assets/game-ready/source-frames/` 下的技能图标 / VFX 是 chroma-key RGB 源帧，不是最终透明 PNG 帧序列，不能直接从 Godot 引用。
 - 已添加 headless smoke tests：`godotGame/tests/smoke_test.gd`、`godotGame/tests/core_loop_smoke_test.gd`、`godotGame/tests/input_actions_smoke_test.gd`、`godotGame/tests/display_layout_smoke_test.gd`、`godotGame/tests/visual_asset_smoke_test.gd`。
@@ -64,12 +67,12 @@
 ## 未完成实现
 
 - 竖屏 UI 和触屏虚拟摇杆尚未实现；当前显示目标是 1280x720 横屏。
-- 完整合成 UI 尚未实现；当前只有最小背包式合成面板、火火火 -> 陨石链路和基础激活槽替换。
+- 完整合成 UI 尚未实现；当前只有最小背包式合成面板、火火火 -> 陨石链路、同名技能重复激活和基础激活槽替换。
 - 符文系统尚未实现；当前只保留未来 `RuneDef` / 等价数据源位置。
 - 高级技能、紫色品质、橙色品质尚未实现。
 - 3 选 1 奖励池当前已有元素强化和获得元素，尚未包含符文、合成决策、奖励权重和稀有度控制。
 - 玩家死亡、失败结算、重新开始流程尚未实现。
-- 当前 debug 模式会将玩家生命锁到 1，让开局拥有火 / 冰 / 雷各 3 个基础元素，并开局解锁合成面板；正式死亡暂停和重开流程仍未实现。
+- 当前 debug 模式会将玩家生命锁到 1，让开局拥有火 / 冰 / 雷各 9 个基础元素，并开局解锁合成面板；正式死亡暂停和重开流程仍未实现。
 - XP shard、升级 UI 和除火火火陨石外的后续高级技能正式美术尚未接入。
 
 ## 资源占位清单
@@ -118,5 +121,8 @@
 - 2026-04-25：根据用户反馈加入最小元素 / 合成面板，并取消获得 3 火后的自动合成。HUD 和面板都显示拥有数量与激活数量；面板打开时暂停战斗，允许查看库存、替换激活槽、选择 3 个元素并手动合成。
 - 2026-04-25：使用 imagegen 子代理生成火火火陨石高级技能图标、陨石下落段和陨石落点爆炸源图；主线程完成去背、裁切、缩放和接入。陨石图标已接入 `SkillDef.icon_path`；落点爆炸 8 帧已接入现有 `vfx_frames_dir`；下落段 6 帧已暂存等待后续运行时代码接入。
 - 2026-04-25：接入陨石下落段运行时代码。新增 `meteor_strike_effect.gd`，陨石技能配置 `cast_intro_frames_dir` 后走两段式效果：从目标左上方斜线落下，落地时播放爆炸帧并结算范围伤害；普通范围技能仍走原 `AreaEffect`。新增并通过 `meteor_strike_smoke_test.gd`。
-- 2026-04-25：新增 debug 初始库存模式。`project.godot` 当前设置 `debug/game/start_with_three_each_basic_element=true`；debug build 中 `RunState.reset_run()` 会让火 / 冰 / 雷各 3 个，便于一开局打开元素 / 合成面板测试技能合成；`synthesis_smoke_test.gd` 已覆盖该初始库存。
+- 2026-04-25：新增 debug 初始库存模式。后续已改为 `debug/game/initial_basic_element_count=9`；debug build 中 `RunState.reset_run()` 会让火 / 冰 / 雷各 9 个，便于一开局打开元素 / 合成面板测试多次技能合成；`synthesis_smoke_test.gd` 已覆盖该初始库存。
 - 2026-04-26：按用户反馈调整 HUD 和合成面板。HUD 不再显示拥有数量，只显示基础元素等级和激活数量；合成面板改为背包格子，前三格高亮当前激活元素，3 个合成框通过“选框后点元素”填充材料。正式版合成按钮 3 级前黑色不可点击，debug build 通过 `debug/game/unlock_synthesis_from_start=true` 开局解锁。
+- 2026-04-26：修正重复技能实例规则。基础元素和合成元素都按拥有实例数提供可激活技能；3 个冰元素可同时激活 3 个寒冰新星，重复合成火火火可拥有多个 `meteor_fire`，激活槽最多只能使用已拥有数量。合成会在消耗元素后修复已经失去库存支撑的激活槽；技能冷却按槽位记录，避免同名技能共享一个冷却计时。
+- 2026-04-26：修正 9×3 debug 库存下的合成面板溢出。背包区改为滚动区域，激活选择去掉同名重复按钮，`display_layout_smoke_test.gd` 已覆盖面板在 1280x720 内可见且背包显示 27 个初始元素。
+- 2026-04-26：修正重复陨石视觉重叠。`SkillController` 对重复技能槽加入初始冷却 stagger，并让重复范围技能在目标点附近做确定性散布；新增 `duplicate_skill_visual_smoke_test.gd` 验证 3 个陨石槽会错时生成且落点不完全重叠。

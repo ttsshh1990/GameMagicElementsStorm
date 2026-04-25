@@ -413,3 +413,39 @@
 - 任务摘要：让 HUD 去掉拥有数量，把合成面板改成类似背包的格子界面，并区分正式版 3 级解锁和测试版开局解锁。
 - 状态变化：HUD 元素统计只显示基础元素等级和激活数量；合成面板显示背包格子，前三格高亮当前激活元素；新增 3 个合成框，玩家选中合成框后点击元素放入材料；正式逻辑下合成按钮 3 级前黑色不可点击，debug build 通过 `debug/game/unlock_synthesis_from_start=true` 开局解锁；`display_layout_smoke_test.gd` 和 `synthesis_smoke_test.gd` 已更新并通过。
 - 后续交接：当前背包式面板仍是工程 UI，占位视觉未做正式美术；后续如果需要更强的可读性，应优先补 UI theme / 图标格子样式，而不是把库存数量重新塞回 HUD。
+
+## 2026-04-26 - 支持同名技能重复激活和重复合成
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对重复激活规则的澄清、`docs/design/current-design.md`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/scripts/synthesis/synthesis_service.gd`、`godotGame/tests/synthesis_smoke_test.gd`。
+- 任务摘要：修正第二次火火火合成提示无配方的问题，并按设计明确同名技能本身允许重复激活。
+- 状态变化：`SynthesisService` 不再禁止重复产出同一 `result_skill_id`；`RunState.get_activation_skill_ids()` 按拥有元素实例展开可激活技能，不再按技能 ID 去重；重复基础技能和重复高级技能都由拥有实例数量限制；合成后会修复不再有库存支撑的激活槽；`SkillController` 改为按槽位维护冷却，避免重复技能共享冷却；设计文档、设计记忆、任务板和 implementation status 已同步。
+- 后续交接：后续实现其他高级元素、紫色 / 橙色合成时，应继续按“元素实例”而不是“技能 ID 唯一解锁”建模；UI 若需要区分多个同名实例，可在显示层增加实例编号，但不要改变底层拥有数量规则。
+
+## 2026-04-26 - 测试模式初始元素改为每种 9 个
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户要求、`godotGame/scripts/autoload/debug_settings.gd`、`godotGame/scripts/autoload/run_state.gd`、`godotGame/project.godot`、`godotGame/tests/synthesis_smoke_test.gd`。
+- 任务摘要：将测试模式初始基础元素从火 / 冰 / 雷各 3 个改为各 9 个，方便连续测试多次合成。
+- 状态变化：移除旧布尔语义的 `debug/game/start_with_three_each_basic_element`，改为 debug-only 数量设置 `debug/game/initial_basic_element_count=9`；`RunState.reset_run()` 按该数量生成三基础元素库存；`synthesis_smoke_test.gd` 已更新。
+- 后续交接：这是 debug 辅助配置，不改变正式开局设计；后续需要更多或更少测试库存时优先改 `project.godot` 中的 `debug/game/initial_basic_element_count`，不需要再改 `RunState`。
+
+## 2026-04-26 - 修正 27 格背包下的合成面板溢出
+
+- 入口来源：Codex App 当前 thread，用户截图反馈。
+- 主责 agent：engineering-agent。
+- 已读取上下文：截图、`godotGame/scripts/ui/ui_root.gd`、`godotGame/tests/display_layout_smoke_test.gd`。
+- 任务摘要：修正测试模式每种元素 9 个后，合成面板内容超过窗口底部的问题。
+- 状态变化：合成面板改为固定 1280x720 画布内坐标和尺寸；元素背包区改为可滚动区域；激活技能选择按技能类型去重显示，避免 27 个重复按钮横向溢出；`display_layout_smoke_test.gd` 新增 27 个初始库存和面板边界检查。
+- 后续交接：当前仍是工程占位 UI。正式 UI 美术接入时，应保留“背包可滚动”和“激活选择不重复展示同名技能”的交互原则。
+
+## 2026-04-26 - 修正重复陨石完全重叠
+
+- 入口来源：Codex App 当前 thread。
+- 主责 agent：engineering-agent。
+- 已读取上下文：用户对 3 个陨石只看到 1 个的反馈、`godotGame/scripts/skills/skill_controller.gd`、`godotGame/scripts/combat/meteor_strike_effect.gd`、`godotGame/resources/skills/skill_meteor_fire.tres`。
+- 任务摘要：确认并修复同名技能多实例释放时的视觉重叠问题。
+- 状态变化：确认根因是 3 个陨石槽位同初始冷却、同一帧寻找最近敌人、同一目标点生成特效；`SkillController` 现在对重复技能槽位加入初始冷却错开，并对重复范围技能按槽位做小幅确定性散布；新增 `duplicate_skill_visual_smoke_test.gd`。
+- 后续交接：如果后续某些范围技能设计上必须完全同点叠加，应在 `SkillDef` 增加显式配置，而不是回退全局重复技能散布规则。

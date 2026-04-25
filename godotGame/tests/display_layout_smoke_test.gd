@@ -16,7 +16,7 @@ func _run() -> void:
 	root.add_child(main)
 	await process_frame
 
-	if not _check_ui_layout(main):
+	if not await _check_ui_layout(main):
 		quit(1)
 		return
 	if not _check_element_icon_assets(main):
@@ -65,18 +65,28 @@ func _check_ui_layout(main: Node) -> bool:
 	if synthesis_panel == null:
 		push_error("Display layout smoke failed: SynthesisPanel missing.")
 		return false
-	if synthesis_panel.anchor_left != 0.5 or synthesis_panel.anchor_top != 0.5 or synthesis_panel.anchor_right != 0.5 or synthesis_panel.anchor_bottom != 0.5:
-		push_error("Display layout smoke failed: SynthesisPanel is not center-anchored.")
+	if synthesis_panel.position != Vector2(280.0, 50.0):
+		push_error("Display layout smoke failed: SynthesisPanel position is %s." % synthesis_panel.position)
+		return false
+	if synthesis_panel.size != Vector2(720.0, 620.0):
+		push_error("Display layout smoke failed: SynthesisPanel size is %s." % synthesis_panel.size)
 		return false
 	ui_root._open_synthesis_panel()
+	await process_frame
 	if not synthesis_panel.visible:
 		push_error("Display layout smoke failed: SynthesisPanel did not open.")
 		return false
 	if not root.get_node("/root/RunState").is_level_up_paused:
 		push_error("Display layout smoke failed: SynthesisPanel should pause combat while open.")
 		return false
-	if ui_root.synthesis_inventory_grid.get_child_count() < 9:
-		push_error("Display layout smoke failed: SynthesisPanel inventory should show debug inventory slots.")
+	if synthesis_panel.size.x > EXPECTED_VIEWPORT.x or synthesis_panel.size.y > EXPECTED_VIEWPORT.y:
+		push_error("Display layout smoke failed: SynthesisPanel does not fit in the 1280x720 viewport.")
+		return false
+	if synthesis_panel.position.y < 0.0 or synthesis_panel.position.y + synthesis_panel.size.y > EXPECTED_VIEWPORT.y:
+		push_error("Display layout smoke failed: SynthesisPanel vertical bounds are outside the 1280x720 viewport: position=%s size=%s." % [synthesis_panel.position, synthesis_panel.size])
+		return false
+	if ui_root.synthesis_inventory_grid.get_child_count() < 27:
+		push_error("Display layout smoke failed: SynthesisPanel inventory should show debug inventory slots for nine of each element.")
 		return false
 	if ui_root.synthesis_box_row.get_child_count() != 3:
 		push_error("Display layout smoke failed: SynthesisPanel should show 3 synthesis boxes.")
